@@ -255,6 +255,40 @@
     startAutoClicker();
   }
 
+  // Оффлайн-доход
+  function getRandomAutoClickPoints() {
+    const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
+    return doublePointsActive ? randomNum * 2 : randomNum;
+  }
+
+  function handleOfflineEarnings() {
+    const lastExit = parseInt(localStorage.getItem('lastExitTime'));
+    const now = Date.now();
+
+    if (!lastExit || !autoClickerActive) return;
+
+    const secondsAway = Math.floor((now - lastExit) / 1000);
+    const interval = 1.5;
+    const clicks = Math.floor(secondsAway / interval);
+    let totalEarnings = 0;
+
+    for (let i = 0; i < clicks; i++) {
+      totalEarnings += getRandomAutoClickPoints();
+    }
+
+    if (totalEarnings > 0) {
+      score += totalEarnings;
+      localStorage.setItem('score', score);
+      updateScoreDisplay();
+      alert(`Ты был в оффлайне ${secondsAway} сек. Получено ${totalEarnings} очков от автокликера!`);
+    }
+  }
+
+  // Сохраняем время выхода
+  window.addEventListener('beforeunload', () => {
+    localStorage.setItem('lastExitTime', Date.now());
+  });
+
   // Управление оверлеями
   function toggleOverlay(overlay, show) {
     if(show) {
@@ -276,10 +310,8 @@
   closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
   closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
 
+  handleOfflineEarnings();
   updateScoreDisplay();
 
 })();
 </script>
-
-</body>
-</html>
