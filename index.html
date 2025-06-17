@@ -3,71 +3,171 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Генератор QR-кодов для текста, фото и видео</title>
+<title>Генератор QR-кодов — Продвинутый</title>
 <style>
-  /* Тот же стиль, что и ранее, для краткости не дублирую */
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     font-family: 'Inter', sans-serif;
     margin: 0; padding: 0;
     min-height: 100vh;
     background: linear-gradient(135deg, #667eea, #764ba2);
-    display: flex; justify-content: center; align-items: center;
-    padding: 20px; color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: #fff;
   }
+
   .container {
     background: rgba(255 255 255 / 0.1);
     backdrop-filter: blur(20px);
     border-radius: 18px;
     padding: 30px 40px;
-    max-width: 480px;
+    max-width: 440px;
     width: 100%;
     box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     text-align: center;
-    display: flex; flex-direction: column; gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
-  h1 { margin: 0 0 16px; font-weight: 700; font-size: 2.2rem; letter-spacing: 1.2px; }
-  label { align-self: flex-start; font-weight: 600; font-size: 1rem; color: #ddd; margin-bottom: 6px; }
+
+  h1 {
+    margin: 0 0 16px;
+    font-weight: 700;
+    font-size: 2.2rem;
+    letter-spacing: 1.2px;
+  }
+
+  label {
+    align-self: flex-start;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #ddd;
+    margin-bottom: 6px;
+  }
+
   textarea {
-    width: 100%; padding: 14px 16px; border-radius: 14px; border: none;
-    font-size: 1.1rem; resize: vertical; min-height: 100px; outline: none;
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: none;
+    font-size: 1.1rem;
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
     transition: box-shadow 0.3s ease, background-color 0.3s ease;
-    background: rgba(255 255 255 / 0.15); color: #fff;
+    background: rgba(255 255 255 / 0.15);
+    color: #fff;
   }
-  textarea::placeholder { color: #eee; opacity: 0.7; }
-  textarea:focus { box-shadow: 0 0 16px 3px rgba(255,255,255,0.85); background: rgba(255 255 255 / 0.25); color: #fff; }
-  .buttons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  textarea::placeholder {
+    color: #eee;
+    opacity: 0.7;
+  }
+  textarea:focus {
+    box-shadow: 0 0 16px 3px rgba(255, 255, 255, 0.85);
+    background: rgba(255 255 255 / 0.25);
+    color: #fff;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
   button {
     background: linear-gradient(135deg, #ff7e5f, #feb47b);
-    border: none; border-radius: 36px; padding: 14px 36px;
-    font-size: 1.1rem; font-weight: 700; color: #fff; cursor: pointer;
-    box-shadow: 0 6px 20px rgba(255,126,95,0.6);
+    border: none;
+    border-radius: 36px;
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 126, 95, 0.6);
     transition: background 0.3s ease, box-shadow 0.3s ease;
-    user-select: none; display: flex; align-items: center; gap: 10px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-  button:hover:not(:disabled) { background: linear-gradient(135deg, #feb47b, #ff7e5f); box-shadow: 0 10px 28px rgba(255,126,95,0.9); }
-  button:disabled { background: #ccc; color: #666; cursor: not-allowed; box-shadow: none; }
-  #download-btn svg { width: 20px; height: 20px; fill: #fff; }
+
+  button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #feb47b, #ff7e5f);
+    box-shadow: 0 10px 28px rgba(255, 126, 95, 0.9);
+  }
+
+  button:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  #download-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: #fff;
+  }
+
   #qrcode {
-    margin-top: 24px; background: #fff; border-radius: 18px;
-    padding: 24px; display: inline-block; opacity: 0; transform: scale(0.9);
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px;
+    display: inline-block;
+    opacity: 0;
+    transform: scale(0.9);
     transition: opacity 0.4s ease, transform 0.4s ease;
   }
-  #qrcode.visible { opacity: 1; transform: scale(1); }
+
+  #qrcode.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
   .status {
-    font-size: 0.9rem; color: #ffd9c4; min-height: 22px; text-align: center; font-weight: 600;
+    font-size: 0.9rem;
+    color: #ffd9c4;
+    min-height: 22px;
+    text-align: center;
+    font-weight: 600;
   }
+
   .progress-bar {
-    width: 100%; height: 6px; background: rgba(255 255 255 / 0.25);
-    border-radius: 3px; overflow: hidden; margin-top: 6px; display: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255 255 255 / 0.25);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 6px;
+    display: none;
   }
+
   .progress-bar > div {
-    height: 100%; background: #feb47b; width: 0%; transition: width 0.2s ease;
+    height: 100%;
+    background: #feb47b;
+    width: 0%;
+    transition: width 0.2s ease;
   }
-  input[type=file] {
-    margin-top: 6px; color: #fff;
+
+  @media (max-width: 480px) {
+    .container {
+      padding: 20px;
+      max-width: 100%;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      gap: 6px;
+    }
   }
 </style>
 </head>
@@ -78,9 +178,6 @@
 
   <label for="text-input">Введите текст или ссылку:</label>
   <textarea id="text-input" rows="4" placeholder="Например, https://example.com"></textarea>
-
-  <label for="file-input">Или загрузите фото / видео файл:</label>
-  <input type="file" id="file-input" accept="image/*,video/*" />
 
   <div class="status" id="status-msg"></div>
   <div class="progress-bar" id="progress-bar"><div></div></div>
@@ -101,56 +198,18 @@
   const generateBtn = document.getElementById('generate-btn');
   const downloadBtn = document.getElementById('download-btn');
   const textInput = document.getElementById('text-input');
-  const fileInput = document.getElementById('file-input');
   const qrCodeContainer = document.getElementById('qrcode');
   const statusMsg = document.getElementById('status-msg');
   const progressBar = document.getElementById('progress-bar');
   const progressFill = progressBar.querySelector('div');
 
-  let dataToEncode = '';
-
-  // Обновляем состояние кнопки при вводе текста
   textInput.addEventListener('input', () => {
-    if (textInput.value.trim().length > 0) {
-      generateBtn.disabled = false;
-      fileInput.value = ''; // очистить файл, чтобы не было конфликтов
-      dataToEncode = textInput.value.trim();
-      statusMsg.textContent = '';
-      qrCodeContainer.classList.remove('visible');
-      downloadBtn.style.display = 'none';
-      qrCodeContainer.innerHTML = '';
-    } else if (!fileInput.files.length) {
-      generateBtn.disabled = true;
-    }
-  });
-
-  // Обработка выбора файла
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (!file) {
-      generateBtn.disabled = textInput.value.trim().length === 0;
-      return;
-    }
-    // Очистить текстовое поле чтобы не было конфликтов
-    textInput.value = '';
-    generateBtn.disabled = true;
-    statusMsg.textContent = 'Читаем файл...';
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      dataToEncode = e.target.result; // base64 data URL
-      statusMsg.textContent = 'Файл готов к генерации.';
-      generateBtn.disabled = false;
-      qrCodeContainer.classList.remove('visible');
-      downloadBtn.style.display = 'none';
-      qrCodeContainer.innerHTML = '';
-    };
-    reader.onerror = function() {
-      statusMsg.textContent = 'Ошибка при чтении файла.';
-      generateBtn.disabled = true;
-    };
-
-    reader.readAsDataURL(file);
+    const hasText = textInput.value.trim().length > 0;
+    generateBtn.disabled = !hasText;
+    statusMsg.textContent = '';
+    qrCodeContainer.classList.remove('visible');
+    downloadBtn.style.display = 'none';
+    qrCodeContainer.innerHTML = '';
   });
 
   function simulateProgress(duration = 800) {
@@ -175,10 +234,12 @@
   }
 
   generateBtn.addEventListener('click', async () => {
-    if (!dataToEncode) {
-      statusMsg.textContent = 'Введите текст или загрузите файл!';
+    const text = textInput.value.trim();
+    if (!text) {
+      statusMsg.textContent = 'Введите текст или ссылку!';
       return;
     }
+
     statusMsg.textContent = 'Генерируем QR-код...';
     generateBtn.disabled = true;
     downloadBtn.style.display = 'none';
@@ -187,7 +248,7 @@
 
     await simulateProgress();
 
-    QRCode.toCanvas(dataToEncode, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
+    QRCode.toCanvas(text, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
       generateBtn.disabled = false;
 
       if (err) {
@@ -201,16 +262,20 @@
     });
   });
 
-  downloadBtn.addEventListener('click', () => {
+  downloadBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+
     const canvas = qrCodeContainer.querySelector('canvas');
     if (!canvas) return;
 
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
     link.download = 'qrcode.png';
-
+    link.style.display = 'none';
     document.body.appendChild(link);
+
     link.click();
+
     document.body.removeChild(link);
   });
 </script>
