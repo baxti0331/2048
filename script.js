@@ -1,141 +1,139 @@
-const gridContainer = document.getElementById('grid-container');
+const size = 4;
+let grid = [];
+let score = 0;
+
+const gridEl = document.getElementById('grid');
+const tilesEl = document.getElementById('tiles');
 const scoreEl = document.getElementById('score');
 const restartBtn = document.getElementById('restart-btn');
 
-let grid = [];
-let score = 0;
-const size = 4;
-
-// Инициализация пустой сетки
-function initGrid() {
-  grid = [];
-  for(let i=0; i<size; i++){
-    grid[i] = [];
-    for(let j=0; j<size; j++){
-      grid[i][j] = 0;
-    }
-  }
-}
-
-// Добавление случайной плитки 2 или 4
-function addRandomTile() {
-  let emptyCells = [];
-  for(let i=0; i<size; i++){
-    for(let j=0; j<size; j++){
-      if(grid[i][j] === 0) emptyCells.push({x: i, y: j});
-    }
-  }
-  if(emptyCells.length === 0) return false;
-  let randIndex = Math.floor(Math.random() * emptyCells.length);
-  let cell = emptyCells[randIndex];
-  grid[cell.x][cell.y] = Math.random() < 0.9 ? 2 : 4;
-  return true;
-}
-
-// Отрисовка сетки и установка обработчиков кликов
-function drawGrid() {
-  gridContainer.innerHTML = '';
-  for(let i=0; i<size; i++){
-    for(let j=0; j<size; j++){
-      let val = grid[i][j];
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      if(val !== 0) cell.classList.add('cell-' + val);
-      cell.textContent = val === 0 ? '' : val;
-      cell.dataset.x = i;
-      cell.dataset.y = j;
-      cell.onclick = onCellClick;
-      gridContainer.appendChild(cell);
-    }
-  }
-  scoreEl.textContent = score;
-}
-
-// Обработка клика по плитке
-function onCellClick(e) {
-  const x = parseInt(e.target.dataset.x);
-  const y = parseInt(e.target.dataset.y);
-  if(grid[x][y] === 0) return; // пустая плитка — не двигаем
-
-  // Попытаемся сдвинуть плитку влево, если свободно
-  // Если хочешь другой порядок — можно добавить выбор направления
-  if(moveTile(x, y, 'left')) {
-    addRandomTile();
-    drawGrid();
-    if(isGameOver()) gameOver();
-  }
-}
-
-// Логика сдвига плитки в заданном направлении
-function moveTile(x, y, direction) {
-  let nx = x;
-  let ny = y;
-
-  function canMove(nx, ny, dx, dy) {
-    let mx = nx + dx;
-    let my = ny + dy;
-    if(mx < 0 || mx >= size || my < 0 || my >= size) return false;
-    // Пустая клетка или с таким же числом для объединения
-    return grid[mx][my] === 0 || grid[mx][my] === grid[nx][ny];
-  }
-
-  let dx=0, dy=0;
-  if(direction === 'left') dy = -1;
-  else if(direction === 'right') dy = 1;
-  else if(direction === 'up') dx = -1;
-  else if(direction === 'down') dx = 1;
-
-  let moved = false;
-  while(canMove(nx, ny, dx, dy)) {
-    let mx = nx + dx;
-    let my = ny + dy;
-    if(grid[mx][my] === 0) {
-      // Просто сдвигаем
-      grid[mx][my] = grid[nx][ny];
-      grid[nx][ny] = 0;
-      nx = mx;
-      ny = my;
-      moved = true;
-    } else if(grid[mx][my] === grid[nx][ny]) {
-      // Объединяем
-      grid[mx][my] *= 2;
-      score += grid[mx][my];
-      grid[nx][ny] = 0;
-      moved = true;
-      break; // объединение закончено
-    } else {
-      break;
-    }
-  }
-
-  return moved;
-}
-
-function isGameOver() {
-  for(let i=0; i<size; i++){
-    for(let j=0; j<size; j++){
-      if(grid[i][j] === 0) return false;
-      if(j !== size-1 && grid[i][j] === grid[i][j+1]) return false;
-      if(i !== size-1 && grid[i][j] === grid[i+1][j]) return false;
-    }
-  }
-  return true;
-}
-
-function gameOver() {
-  alert('Игра окончена! Ваш счёт: ' + score);
-}
-
-function setup() {
-  initGrid();
-  addRandomTile();
-  addRandomTile();
+function init() {
+  grid = Array(size).fill().map(_ => Array(size).fill(0));
   score = 0;
-  drawGrid();
+  spawn();
+  spawn();
+  draw();
 }
 
-restartBtn.addEventListener('click', () => {
-  setup();
+function spawn() {
+  const empty = [];
+  grid.forEach((r,i) => r.forEach((v,j)=>{ if (!v) empty.push({i,j}); }));
+  if(!empty.length) return;
+  const {i,j} = empty[Math.floor(Math.random()*empty.length)];
+  grid[i][j] = Math.random()<.9 ? 2 : 4;
+}
+
+function draw() {
+  // draw background cells
+  gridEl.innerHTML = Array(size*size).fill().map(_ => '<div class="cell"></div>').join('');
+  tilesEl.innerHTML = '';
+  scoreEl.textContent = score;
+
+  grid.forEach((row,i)=>{
+    row.forEach((v,j)=>{
+      if(!v) return;
+      const tile = document.createElement('div');
+      tile.className = 'tile tile-'+v;
+      tile.textContent = v;
+      setTilePosition(tile, i, j);
+      tilesEl.appendChild(tile);
+    });
+  });
+}
+
+function setTilePosition(el, i, j) {
+  el.style.transform = `translate(${j*90}px, ${i*90}px)`;
+}
+
+function move(direction) {
+  let moved = false;
+  let merged = create2d(false);
+  const range = [...Array(size).keys()];
+
+  const traverse = {
+    up: range,
+    down: [...range].reverse(),
+    left: range,
+    right: [...range].reverse()
+  };
+
+  const [di,dj] = {
+    up: [-1,0], down: [1,0],
+    left: [0,-1], right: [0,1]
+  }[direction];
+
+  traverseRows:
+  for(let i of traverse[direction==='up'||direction==='down'?'left':'up']) {
+    for(let j of traverse[direction==='left'||direction==='right'?'up':'left']) {
+      let [ci,cj] = direction==='left'||direction==='right' ? [j,i] : [i,j];
+      if(!grid[ci][cj]) continue;
+
+      let ni=ci, nj=cj;
+      while(true) {
+        const ti = ni+di, tj = nj+dj;
+        if(ti<0||ti>=size||tj<0||tj>=size) break;
+        if(grid[ti][tj]===0) {
+          grid[ti][tj] = grid[ni][nj];
+          grid[ni][nj] = 0;
+          ni = ti; nj = tj;
+          moved = true;
+        } else if(grid[ti][tj]===grid[ni][nj] && !merged[ti][tj]) {
+          grid[ti][tj] *= 2;
+          grid[ni][nj] = 0;
+          score += grid[ti][tj];
+          merged[ti][tj] = true;
+          moved = true;
+          break;
+        } else break;
+      }
+    }
+  }
+
+  if(moved) {
+    spawn();
+    draw();
+    if(isOver()) setTimeout(()=>alert('Game Over! Score: '+score), 20);
+  }
+}
+
+function create2d(val) {
+  return Array(size).fill().map(_ => Array(size).fill(val));
+}
+
+function isOver() {
+  if(grid.flat().includes(0)) return false;
+  for(let i=0;i<size;i++){
+    for(let j=0;j<size;j++){
+      if(i+1<size && grid[i][j]===grid[i+1][j]) return false;
+      if(j+1<size && grid[i][j]===grid[i][j+1]) return false;
+    }
+  }
+  return true;
+}
+
+window.addEventListener('keydown', e=>{
+  const d = {
+    ArrowUp:'up', ArrowDown:'down',
+    ArrowLeft:'left', ArrowRight:'right'
+  }[e.key];
+  if(d) move(d);
 });
 
-setup();
+let touchStart = null;
+gridEl.addEventListener('touchstart', e=>{
+  const t = e.changedTouches[0];
+  touchStart = { x: t.clientX, y: t.clientY };
+});
+gridEl.addEventListener('touchend', e=>{
+  if(!touchStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x;
+  const dy = t.clientY - touchStart.y;
+  if(Math.abs(dx)>Math.abs(dy)) move(dx>0?'right':'left');
+  else move(dy>0?'down':'up');
+  touchStart = null;
+});
+
+restartBtn.addEventListener('click', init);
+
+init();
