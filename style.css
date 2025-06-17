@@ -1,106 +1,104 @@
-body {
-  margin: 0;
-  padding: 0;
-  background: radial-gradient(circle at center, #222 30%, #000 100%);
-  color: #ffd700;
-  font-family: 'Arial Black', sans-serif;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+* {
+  box-sizing: border-box;
+  user-select: none;
 }
 
-.slot-machine {
-  background: #111;
-  border: 5px solid gold;
-  border-radius: 20px;
-  padding: 30px;
+body {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #eee;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0; padding: 0;
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
   text-align: center;
-  box-shadow: 0 0 25px gold, 0 0 10px red inset;
-  width: 90%;
-  max-width: 420px;
+  max-width: 360px;
+  width: 100%;
+  background: #222a36;
+  padding: 20px 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px #0ff7ffaa;
 }
 
 h1 {
-  font-size: 2em;
-  color: gold;
-  margin-bottom: 15px;
-  text-shadow: 0 0 8px red;
+  margin-bottom: 10px;
+  text-shadow: 0 0 10px #0ff7ff;
 }
 
 .balance {
-  font-size: 1.2em;
-  margin-bottom: 20px;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  color: #66ffcc;
+  font-weight: 600;
+  text-shadow: 0 0 8px #22ccaa;
 }
 
-.reels {
+.slot-machine {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 15px;
   margin-bottom: 20px;
 }
 
 .reel {
-  font-size: 3rem;
   width: 80px;
   height: 80px;
-  background: #222;
-  border: 3px solid gold;
+  border: 4px solid #0ff7ff;
   border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: inset 0 0 8px #000;
+  background: #111b26;
+  box-shadow: inset 0 0 8px #0ff7ff66;
   overflow: hidden;
   position: relative;
 }
 
-.reel.spin::before {
-  content: '🎲';
-  position: absolute;
-  top: -100%;
-  animation: spinReel 0.4s linear forwards;
-  font-size: 2.5rem;
-  opacity: 0.8;
+.symbols {
+  display: flex;
+  flex-direction: column;
+  font-size: 3.5rem;
+  color: #0ff7ff;
+  font-weight: 700;
 }
 
-@keyframes spinReel {
-  0% {
-    top: -100%;
-    opacity: 0;
-  }
-  50% {
-    top: 0%;
-    opacity: 1;
-  }
-  100% {
-    top: 100%;
-    opacity: 0;
-  }
+.symbols div {
+  height: 80px;
+  line-height: 80px;
+  text-align: center;
+  filter: drop-shadow(0 0 4px #0ff7ffaa);
 }
 
-button#spin {
-  background: linear-gradient(to bottom, #ffd700, #c49b00);
-  color: #000;
-  font-size: 1.2em;
-  font-weight: bold;
+.spin-button {
+  background: linear-gradient(135deg, #0ff7ff, #22aaff);
   border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
+  border-radius: 30px;
+  padding: 12px 40px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #001f26;
   cursor: pointer;
-  box-shadow: 0 4px #8a6f00;
-  transition: transform 0.2s;
+  box-shadow: 0 0 12px #0ff7ffbb;
+  transition: background 0.3s ease;
 }
 
-button#spin:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px #8a6f00;
+.spin-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #22aaff, #0ff7ff);
 }
 
-#result {
-  margin-top: 20px;
-  font-size: 1.2em;
-  color: lime;
-  font-weight: bold;
+.spin-button:disabled {
+  background: #555;
+  cursor: not-allowed;
+  box-shadow: none;
+  color: #999;
+}
+
+.result {
+  margin-top: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-height: 28px;
+  color: #66ffcc;
+  text-shadow: 0 0 6px #22ccaa;
 }
