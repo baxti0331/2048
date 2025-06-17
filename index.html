@@ -77,6 +77,32 @@
   .close-btn:hover {
     background:#ff2222;
   }
+  ul {
+    list-style:none; padding:0; margin: 0 0 15px 0;
+  }
+  li {
+    margin-bottom:10px;
+    display:flex; justify-content: space-between; align-items:center;
+    background: #555a8d;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  li button {
+    background: #ffd700;
+    color: #4a2c00;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 6px 15px;
+    box-shadow: 0 3px 8px rgba(255,215,0,0.7);
+  }
+  li button:hover {
+    background: #ffec00;
+  }
+  li.purchased {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
@@ -96,9 +122,8 @@
 <div id="shop-overlay" class="overlay">
   <div class="overlay-content">
     <h2>Магазин</h2>
-    <ul>
-      <li>Автокликер — 10 очков</li>
-      <li>Ускоритель клика x2 — 50 очков</li>
+    <ul id="shop-list">
+      <!-- Тут будут товары -->
     </ul>
     <button id="close-shop" class="close-btn">Закрыть</button>
   </div>
@@ -123,37 +148,124 @@
   const tasksOverlay = document.getElementById('tasks-overlay');
   const closeShopBtn = document.getElementById('close-shop');
   const closeTasksBtn = document.getElementById('close-tasks');
+  const shopList = document.getElementById('shop-list');
 
-  let score = 0, activeFace = null;const numbers = [1,2,3,4,5,6,7,8];
+  let score = parseInt(localStorage.getItem('score')) || 0;
+  let activeFace = null;
+  const numbers = [1,2,3,4,5,6,7,8];
   const radius = 80;
   const angleStep = 360 / numbers.length;
+
+  // Бонусы
+  let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
+  let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
+
+  // Обновление отображения очков
+  function updateScoreDisplay() {
+    scoreDisplay.textContent = `Очки: ${score}`;
+  }
 
   // Создаем числа на цилиндре
   numbers.forEach((num, i) => {
     const f = document.createElement('div');
     f.className = 'face';
     f.textContent = num;
-    f.style.transform = rotateY(${i * angleStep}deg) translateZ(${radius}px);
+    f.style.transform = `rotateY(${i * angleStep}deg) translateZ(${radius}px)`;
     f.onclick = () => {
       if(activeFace) activeFace.classList.remove('active');
       f.classList.add('active');
       activeFace = f;
-      score += num;
-      scoreDisplay.textContent = Очки: ${score};
+
+      let pointsToAdd = doublePointsActive ? num * 2 : num;
+      score += pointsToAdd;
+      updateScoreDisplay();
+      localStorage.setItem('score', score);
     };
     cylinder.appendChild(f);
   });
 
+  // Товары магазина
+  const shopItems = [
+    {id: 'autoClicker', name: 'Автокликер', price: 10, purchased: autoClickerActive},
+    {id: 'doublePoints', name: 'Ускоритель клика x2', price: 50, purchased: doublePointsActive},
+  ];
+
+  // Отрисовка магазина
+  function renderShop() {
+    shopList.innerHTML = '';
+    shopItems.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = `${item.name} — ${item.price} очков`;
+      if(item.purchased) {
+        li.classList.add('purchased');
+        li.textContent += ' (Куплено)';
+      } else {
+        const buyBtn = document.createElement('button');
+        buyBtn.textContent = 'Купить';
+        buyBtn.onclick = () => buyItem(item.id);
+        li.appendChild(buyBtn);
+      }
+      shopList.appendChild(li);
+    });
+  }
+
+  // Покупка товара
+  function buyItem(id) {
+    const item = shopItems.find(i => i.id === id);
+    if(!item) return;
+    if(item.purchased) {
+      alert('Уже куплено!');
+      return;
+    }
+    if(score < item.price) {
+      alert('Недостаточно очков!');
+      return;
+    }
+
+    score -= item.price;
+    updateScoreDisplay();
+    localStorage.setItem('score', score);
+
+    item.purchased = true;
+    if(id === 'autoClicker') {
+      autoClickerActive = true;
+      localStorage.setItem('autoClickerActive', 'true');
+      startAutoClicker();
+    }
+    if(id === 'doublePoints') {
+      doublePointsActive = true;
+      localStorage.setItem('doublePointsActive', 'true');
+    }
+    renderShop();
+  }
+
+  // Автокликер
+  let autoClickerInterval = null;
+  function startAutoClicker() {
+    if(autoClickerInterval) return;
+    autoClickerInterval = setInterval(() => {
+      const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
+      let pointsToAdd = doublePointsActive ? randomNum * 2 : randomNum;
+      score += pointsToAdd;
+      updateScoreDisplay();
+      localStorage.setItem('score', score);
+    }, 1500);
+  }
+  if(autoClickerActive) {
+    startAutoClicker();
+  }
+
   // Управление оверлеями
-  const toggleOverlay = (overlay, show) => {
+  function toggleOverlay(overlay, show) {
     if(show) {
       overlay.classList.add('visible');
     } else {
       overlay.classList.remove('visible');
     }
-  };
+  }
 
   shopBtn.onclick = () => {
+    renderShop();
     toggleOverlay(shopOverlay, true);
     toggleOverlay(tasksOverlay, false);
   };
@@ -163,6 +275,9 @@
   };
   closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
   closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
+
+  updateScoreDisplay();
+
 })();
 </script>
 
