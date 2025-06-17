@@ -30,28 +30,31 @@ function spin() {
   balanceEl.textContent = balance;
 
   const outcome = [];
+
   reels.forEach((reel, i) => {
-    const rand = Math.floor(Math.random() * symbols.length);
-    const symbol = symbols[rand];
-    outcome.push(symbol);
-    reel.textContent = symbol;
-    reel.style.transform = 'rotate(360deg)';
+    reel.classList.add('spin');
     setTimeout(() => {
-      reel.style.transform = 'rotate(0deg)';
-    }, 400);
+      reel.classList.remove('spin');
+      const rand = Math.floor(Math.random() * symbols.length);
+      const symbol = symbols[rand];
+      outcome.push(symbol);
+      reel.textContent = symbol;
+    }, 400 + i * 100);
   });
 
-  const combo = outcome.join('');
-  if (payouts[combo]) {
-    const win = payouts[combo];
-    balance += win;
-    balanceEl.textContent = balance;
-    resultEl.textContent = `Вы выиграли $${win}! 🎉`;
-    resultEl.style.color = 'lime';
-  } else {
-    resultEl.textContent = 'Попробуйте снова!';
-    resultEl.style.color = 'gray';
-  }
+  setTimeout(() => {
+    const combo = outcome.join('');
+    if (payouts[combo]) {
+      const win = payouts[combo];
+      balance += win;
+      balanceEl.textContent = balance;
+      resultEl.textContent = `Вы выиграли $${win}! 🎉`;
+      resultEl.style.color = 'lime';
+    } else {
+      resultEl.textContent = 'Попробуйте снова!';
+      resultEl.style.color = 'gray';
+    }
+  }, 1000);
 }
 
 spinBtn.addEventListener('click', spin);
