@@ -111,12 +111,6 @@
     box-shadow: none;
   }
 
-  #download-btn svg {
-    width: 20px;
-    height: 20px;
-    fill: #fff;
-  }
-
   #qrcode {
     margin-top: 24px;
     background: #fff;
@@ -185,10 +179,6 @@
 
   <div class="buttons">
     <button id="generate-btn" disabled>Сгенерировать QR-код</button>
-    <button id="download-btn" style="display:none;" title="Скачать или поделиться QR-кодом">
-      Скачать
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v6h4.66v-6h3.84L12 2z"/></svg>
-    </button>
   </div>
 
   <div id="qrcode"></div>
@@ -197,7 +187,6 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
   const generateBtn = document.getElementById('generate-btn');
-  const downloadBtn = document.getElementById('download-btn');
   const textInput = document.getElementById('text-input');
   const qrCodeContainer = document.getElementById('qrcode');
   const statusMsg = document.getElementById('status-msg');
@@ -209,7 +198,6 @@
     generateBtn.disabled = !hasText;
     statusMsg.textContent = '';
     qrCodeContainer.classList.remove('visible');
-    downloadBtn.style.display = 'none';
     qrCodeContainer.innerHTML = '';
   });
 
@@ -243,7 +231,6 @@
 
     statusMsg.textContent = 'Генерируем QR-код...';
     generateBtn.disabled = true;
-    downloadBtn.style.display = 'none';
     qrCodeContainer.classList.remove('visible');
     qrCodeContainer.innerHTML = '';
 
@@ -257,62 +244,21 @@
         return console.error(err);
       }
 
-      // Очистить контейнер и добавить canvas
       qrCodeContainer.innerHTML = '';
       qrCodeContainer.appendChild(canvas);
 
-      // Добавляем картинку для долгого тапа — универсальный способ сохранения
+      // Добавляем картинку для долгого нажатия (сохраняется через меню "сохранить изображение")
       const img = new Image();
       img.src = canvas.toDataURL('image/png');
       img.style.marginTop = '12px';
       img.style.borderRadius = '14px';
       img.alt = 'QR-код';
-      img.title = 'Нажмите и удерживайте, чтобы сохранить изображение';
+      img.title = 'Нажмите и удерживайте изображение, чтобы сохранить на телефон';
       qrCodeContainer.appendChild(img);
 
       qrCodeContainer.classList.add('visible');
-      statusMsg.textContent = 'QR-код готов! Нажмите и удерживайте изображение, чтобы сохранить на телефон.';
-      downloadBtn.style.display = 'inline-flex';
+      statusMsg.textContent = 'QR-код готов! Нажмите и удерживайте изображение, чтобы сохранить.';
     });
-  });
-
-  // Кнопка "Скачать" — оба варианта:
-  downloadBtn.addEventListener('click', async () => {
-    const canvas = qrCodeContainer.querySelector('canvas');
-    if (!canvas) {
-      alert('QR-код ещё не сгенерирован');
-      return;
-    }
-
-    // Проверяем поддержку Web Share API с файлами
-    if (navigator.canShare && navigator.canShare({ files: [] })) {
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          alert('Не удалось создать файл для обмена');
-          return;
-        }
-        const file = new File([blob], 'qrcode.png', { type: 'image/png' });
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'QR-код',
-            text: 'Сохраните или поделитесь QR-кодом',
-          });
-        } catch (err) {
-          alert('Ошибка при попытке поделиться: ' + err);
-        }
-      }, 'image/png');
-    } else {
-      // fallback — обычное скачивание файла
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = 'qrcode.png';
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
   });
 </script>
 
