@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Дневник питания</title>
+  <title>Дневник питания с советами</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
@@ -90,6 +90,17 @@
       text-align: center;
       color: #ff4382;
     }
+    .advice {
+      margin-top: 15px;
+      background: #fff0f5;
+      padding: 15px 20px;
+      border-radius: 10px;
+      border: 1.5px solid #ff6f91;
+      color: #b3003b;
+      font-weight: 600;
+      font-size: 16px;
+      min-height: 60px;
+    }
     .footer {
       margin-top: 40px;
       text-align: center;
@@ -104,14 +115,14 @@
     <label for="product">Выберите продукт:</label>
     <select id="product">
       <option value="" disabled selected>-- Выберите продукт --</option>
-      <option value="яблоко" data-calories="52">Яблоко (52 ккал/100г)</option>
-      <option value="банан" data-calories="89">Банан (89 ккал/100г)</option>
-      <option value="курица" data-calories="165">Курица (165 ккал/100г)</option>
-      <option value="рис" data-calories="130">Рис (130 ккал/100г)</option>
-      <option value="картофель" data-calories="77">Картофель (77 ккал/100г)</option>
-      <option value="морковь" data-calories="41">Морковь (41 ккал/100г)</option>
-      <option value="хлеб" data-calories="265">Хлеб (265 ккал/100г)</option>
-      <option value="молоко" data-calories="42">Молоко (42 ккал/100г)</option>
+      <option value="яблоко" data-calories="52" data-category="фрукты">Яблоко (52 ккал/100г)</option>
+      <option value="банан" data-calories="89" data-category="фрукты">Банан (89 ккал/100г)</option>
+      <option value="курица" data-calories="165" data-category="мясо">Курица (165 ккал/100г)</option>
+      <option value="рис" data-calories="130" data-category="углеводы">Рис (130 ккал/100г)</option>
+      <option value="картофель" data-calories="77" data-category="овощи">Картофель (77 ккал/100г)</option>
+      <option value="морковь" data-calories="41" data-category="овощи">Морковь (41 ккал/100г)</option>
+      <option value="хлеб" data-calories="265" data-category="углеводы">Хлеб (265 ккал/100г)</option>
+      <option value="молоко" data-calories="42" data-category="молочные">Молоко (42 ккал/100г)</option>
     </select>
 
     <label for="grams">Количество (грамм):</label>
@@ -121,6 +132,7 @@
 
     <div class="log" id="log"></div>
     <div class="total" id="totalCalories">Всего калорий: 0</div>
+    <div class="advice" id="advice">Добавляйте приемы пищи, чтобы получить советы</div>
 
     <div class="footer">Данные сохраняются в браузере</div>
   </div>
@@ -131,8 +143,41 @@
     const addBtn = document.getElementById('addBtn');
     const logDiv = document.getElementById('log');
     const totalCaloriesDiv = document.getElementById('totalCalories');
+    const adviceDiv = document.getElementById('advice');
 
     let entries = JSON.parse(localStorage.getItem('foodEntries')) || [];
+
+    function analyzeDiet(entries) {
+      let totalCalories = 0;
+      let categoriesCount = {
+        фрукты: 0,
+        овощи: 0,
+        мясо: 0,
+        углеводы: 0,
+        молочные: 0,
+      };
+      entries.forEach(entry => {
+        totalCalories += entry.calories;
+        if (categoriesCount.hasOwnProperty(entry.category)) {
+          categoriesCount[entry.category] += entry.grams;
+        }
+      });
+
+      const adviceList = [];
+
+      if (totalCalories < 1500) adviceList.push('Калорий слишком мало, постарайтесь есть больше.');
+      else if (totalCalories > 2800) adviceList.push('Калорий много — контролируйте порции.');
+
+      if (categoriesCount.овощи < 100) adviceList.push('Добавьте больше овощей для витаминов и клетчатки.');
+      if (categoriesCount.фрукты < 100) adviceList.push('Фрукты важны, не забывайте их.');
+
+      if (categoriesCount.мясо < 50 && categoriesCount.молочные < 100)
+        adviceList.push('Добавьте белка из мяса или молочных продуктов.');
+
+      if (adviceList.length === 0) adviceList.push('Ваш рацион выглядит сбалансированным. Молодец!');
+
+      return adviceList.join(' ');
+    }
 
     function renderEntries() {
       logDiv.innerHTML = '';
@@ -148,6 +193,9 @@
         totalCalories += entry.calories;
       });
       totalCaloriesDiv.textContent = `Всего калорий: ${totalCalories}`;
+
+      // Показываем советы
+      adviceDiv.textContent = analyzeDiet(entries);
     }
 
     function saveEntries() {
@@ -160,8 +208,10 @@
         alert('Пожалуйста, выберите продукт');
         return;
       }
-      const productName = productSelect.options[productIndex].value;
-      const caloriesPer100 = +productSelect.options[productIndex].dataset.calories;
+      const productOption = productSelect.options[productIndex];
+      const productName = productOption.value;
+      const caloriesPer100 = +productOption.dataset.calories;
+      const category = productOption.dataset.category;
       const grams = +gramsInput.value;
 
       if (!grams || grams <= 0) {
@@ -171,7 +221,7 @@
 
       const calories = Math.round((caloriesPer100 * grams) / 100);
 
-      entries.push({ product: productName, grams, calories });
+      entries.push({ product: productName, grams, calories, category });
       saveEntries();
       renderEntries();
 
