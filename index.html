@@ -203,6 +203,8 @@
   const progressBar = document.getElementById('progress-bar');
   const progressFill = progressBar.querySelector('div');
 
+  let qrCodeDataUrl = null; // сохраняем ссылку на картинку для скачивания
+
   textInput.addEventListener('input', () => {
     const hasText = textInput.value.trim().length > 0;
     generateBtn.disabled = !hasText;
@@ -210,6 +212,7 @@
     qrCodeContainer.classList.remove('visible');
     downloadBtn.style.display = 'none';
     qrCodeContainer.innerHTML = '';
+    qrCodeDataUrl = null;
   });
 
   function simulateProgress(duration = 800) {
@@ -245,6 +248,7 @@
     downloadBtn.style.display = 'none';
     qrCodeContainer.classList.remove('visible');
     qrCodeContainer.innerHTML = '';
+    qrCodeDataUrl = null;
 
     await simulateProgress();
 
@@ -259,23 +263,21 @@
       qrCodeContainer.classList.add('visible');
       statusMsg.textContent = 'QR-код готов!';
       downloadBtn.style.display = 'inline-flex';
+
+      qrCodeDataUrl = canvas.toDataURL('image/png');
     });
   });
 
   downloadBtn.addEventListener('click', (event) => {
     event.preventDefault();
 
-    const canvas = qrCodeContainer.querySelector('canvas');
-    if (!canvas) return;
+    if (!qrCodeDataUrl) return;
 
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
+    link.href = qrCodeDataUrl;
     link.download = 'qrcode.png';
-    link.style.display = 'none';
     document.body.appendChild(link);
-
     link.click();
-
     document.body.removeChild(link);
   });
 </script>
