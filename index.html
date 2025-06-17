@@ -5,23 +5,117 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Генератор QR-кодов</title>
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; }
-  #qrcode { margin-top: 20px; }
-  button { margin-top: 10px; padding: 10px 20px; font-size: 16px; }
-  input, textarea { width: 100%; padding: 10px; font-size: 16px; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Inter', sans-serif;
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: #fff;
+  }
+
+  .container {
+    background: rgba(255 255 255 / 0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 16px;
+    padding: 30px 40px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+
+  h1 {
+    margin-bottom: 24px;
+    font-weight: 600;
+    font-size: 2rem;
+    letter-spacing: 1.2px;
+  }
+
+  label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #e0e0e0;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 90px;
+    box-sizing: border-box;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+  }
+
+  textarea:focus {
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.7);
+    background: rgba(255 255 255 / 0.15);
+    color: #fff;
+  }
+
+  button {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    border: none;
+    border-radius: 30px;
+    padding: 14px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 126, 95, 0.5);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+  }
+
+  button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #feb47b, #ff7e5f);
+    box-shadow: 0 8px 20px rgba(255, 126, 95, 0.8);
+  }
+
+  button:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  #qrcode {
+    margin-top: 30px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 15px;
+    display: inline-block;
+  }
 </style>
 </head>
 <body>
 
-<h1>Генератор QR-кодов</h1>
-<label for="text-input">Введите текст или ссылку:</label>
-<textarea id="text-input" rows="4" placeholder="Например, https://example.com"></textarea>
-<button id="generate-btn">Сгенерировать QR-код</button>
-<button id="download-btn" style="display:none;">Скачать QR-код</button>
+<div class="container">
+  <h1>Генератор QR-кодов</h1>
 
-<div id="qrcode"></div>
+  <label for="text-input">Введите текст или ссылку:</label>
+  <textarea id="text-input" rows="4" placeholder="Например, https://example.com"></textarea>
 
-<!-- Подключаем библиотеку qrcode.js -->
+  <button id="generate-btn">Сгенерировать QR-код</button>
+  <button id="download-btn" style="display:none;">Скачать QR-код</button>
+
+  <div id="qrcode"></div>
+</div>
+
+<!-- Библиотека для QR-кода -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
   const generateBtn = document.getElementById('generate-btn');
@@ -35,10 +129,9 @@
       alert('Пожалуйста, введите текст или ссылку');
       return;
     }
-    qrCodeContainer.innerHTML = ''; // Очистить старый QR-код
+    qrCodeContainer.innerHTML = '';
 
-    // Генерируем QR-код в виде SVG
-    QRCode.toCanvas(text, { errorCorrectionLevel: 'H' }, function (err, canvas) {
+    QRCode.toCanvas(text, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
       if (err) {
         alert('Ошибка при генерации QR-кода');
         return console.error(err);
@@ -55,7 +148,10 @@
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
     link.download = 'qrcode.png';
+
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   });
 </script>
 
