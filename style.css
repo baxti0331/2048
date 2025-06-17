@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+/* --- Базовые стили --- */
+body, html {
+  margin: 0; padding: 0; height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  font-family: 'Montserrat', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#score {
+  margin-top: 30px;
+  font-size: 2.2rem;
+  text-shadow: 0 0 10px rgba(0,0,0,0.6);
+  user-select: none;
+}
+
+/* --- Цилиндр --- */
+.cylinder-container {
+  perspective: 1200px;
+  width: 220px;
+  height: 220px;
+  margin: 30px 0 60px 0;
+  position: relative;
+}
+
+.cylinder {
+  width: 160px;
+  height: 160px;
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  transform-style: preserve-3d;
+  animation: spin 10s linear infinite;
+  cursor: pointer;
+}
+
+@keyframes spin {
+  from { transform: rotateX(0deg) rotateY(0deg); }
+  to { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+.face {
+  position: absolute;
+  width: 110px;
+  height: 45px;
+  left: 25px;
+  top: 57px;
+  background: linear-gradient(135deg, #f6d365, #fda085);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 0 15px #fff8cc,
+    0 8px 18px rgba(253, 160, 133, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #4a2c00;
+  user-select: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.face:hover {
+  background: linear-gradient(135deg, #fbd786, #f7797d);
+  transform: scale(1.15);
+}
+
+.face.active {
+  background: #ffce00;
+  color: #3a2600;
+  transform: scale(1.35);
+  box-shadow: 0 0 25px #ffce00;
+}
+
+/* --- Нижняя панель с кнопками --- */
+.bottom-bar {
+  position: fixed;
+  bottom: 10px;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+button {
+  background: linear-gradient(135deg, #ff8a00, #e52e71);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 14px 28px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(229, 46, 113, 0.6);
+  transition: all 0.3s ease;
+  user-select: none;
+  flex: 1;
+  margin: 0 10px;
+}
+button:hover {
+  background: linear-gradient(135deg, #e52e71, #ff8a00);
+  box-shadow: 0 8px 16px rgba(229, 46, 113, 0.9);
+  transform: scale(1.05);
+}
+
+/* --- Оверлей магазина и заданий --- */
+.overlay {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 480px;
+  max-height: 350px;
+  background: rgba(0,0,0,0.85);
+  border-radius: 20px;
+  padding: 20px 25px;
+  box-sizing: border-box;
+  color: #fff;
+  box-shadow: 0 0 30px rgba(0,0,0,0.9);
+  overflow-y: auto;
+  font-size: 1rem;
+  display: none;
+  flex-direction: column;
+}
+
+.overlay.open {
+  display: flex;
+  animation: slideUp 0.4s ease forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateX(-50%) translateY(50px); opacity: 0;}
+  to { transform: translateX(-50%) translateY(0); opacity: 1;}
+}
+
+.overlay h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* --- Магазин --- */
+.shop-item {
+  background: linear-gradient(135deg, #f6d365, #fda085);
+  margin-bottom: 12px;
+  border-radius: 15px;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #4a2c00;
+  font-weight: 700;
+  box-shadow: inset 0 0 10px #fff8cc;
+}
+
+.shop-item button {
+  background: #4a2c00;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+.shop-item button:disabled {
+  background: #999999;
+  cursor: default;
+}
+.shop-item button:hover:not(:disabled) {
+  background: #362a00;
+}
+
+/* --- Задания --- */
+.tasks-list {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+.task {
+  background: #4a2c00;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  box-shadow: 0 0 8px #7b5e00;
+}
+.task button {
+  background: #e52e71;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background-color 0.3s ease;
+}
+.task button:hover {
+  background: #ff8a00;
+}
+.task a {
+  color: #fbd786;
+  text-decoration: underline;
+  margin-right: 10px;
+}
+
+/* --- Форма добавления задания --- */
+.add-task-form {
+  display: flex;
+  margin-top: 10px;
+}
+.add-task-form input[type="text"] {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border-radius: 12px 0 0 12px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+}
+.add-task-form input[type="url"] {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border-radius: 12px 0 0 12px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  margin-left: 8px;
+}
+.add-task-form button {
+  background: #ffce00;
+  color: #3a2600;
+  border: none;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 0 12px 12px 0;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  margin-left: 8px;
+}
+.add-task-form button:hover {
+  background: #ffd83b;
+}
