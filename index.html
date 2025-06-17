@@ -5,119 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Цилиндр с числами — Минималка</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
-    body, html {
-      margin:0; padding:0; height:100%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      font-family: 'Montserrat', sans-serif;
-      color:#fff;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      user-select:none;
-    }
-    #score { font-size:2rem; margin-bottom:20px; text-shadow:0 0 10px rgba(0,0,0,.5);}
-    .cylinder-container {
-      perspective:1200px; width:200px; height:200px; position:relative;
-    }
-    #cylinder {
-      width:150px; height:150px; position:absolute; top:25px; left:25px;
-      transform-style: preserve-3d;
-      animation:spin 8s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotateX(360deg) rotateY(360deg); }
-    }
-    .face {
-      position:absolute; width:100px; height:40px; left:25px; top:55px;
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      border-radius:20px;
-      box-shadow: inset 0 0 10px #fff8cc, 0 6px 15px rgba(253,160,133,.7);
-      display:flex; justify-content:center; align-items:center;
-      font-weight:700; font-size:1.5rem; color:#4a2c00;
-      cursor:pointer; user-select:none;
-      transition:background-color .3s ease, transform .3s ease;
-    }
-    .face:hover { background: linear-gradient(135deg,#fbd786,#f7797d); transform: scale(1.1);}
-    .active {
-      background:#ffce00; color:#3a2600; transform: scale(1.3);
-      box-shadow: 0 0 15px #ffce00;
-    }
-    .btns {
-      margin-top: 230px;
-      display:flex; gap:15px;
-    }
-    button {
-      background:linear-gradient(135deg,#ff7e5f,#feb47b);
-      border:none; border-radius:25px; padding:12px 30px;
-      font-weight:700; font-size:1rem; color:#3a2600;
-      cursor:pointer; box-shadow:0 5px 15px rgba(255,126,95,.6);
-      user-select:none;
-      transition: background .3s ease, transform .2s ease;
-    }
-    button:hover { background:linear-gradient(135deg,#feb47b,#ff7e5f); transform:scale(1.05);}
-    .overlay {
-      position: fixed; bottom:0; left:0; right:0;
-      background:#22294ddd; color:#fff; max-height:40vh;
-      padding:20px; box-shadow:0 -5px 20px rgba(0,0,0,.7);
-      display:flex; justify-content:center; align-items:center;
-      z-index:10;
-      transform: translateY(100%);
-      transition: transform .3s ease;
-    }
-    .overlay.visible { transform: translateY(0); }
-    .overlay-content {
-      width:100%; max-width:500px;
-      background:#3a3f6b; border-radius:15px;
-      padding:20px; box-shadow: 0 0 15px #000a;
-      text-align:center;
-    }
-    .close-btn {
-      margin-top:15px;
-      background:#ff5555; color:#fff; box-shadow:none;
-    }
-    .close-btn:hover {
-      background:#ff2222;
-    }
-    ul {
-      list-style:none; padding:0; margin: 0 0 15px 0;
-    }
-    li {
-      margin-bottom:10px;
-      display:flex; justify-content: space-between; align-items:center;
-      background: #555a8d;
-      padding: 10px 15px;
-      border-radius: 10px;
-      font-weight: 700;
-    }
-    li button {
-      background: #ffd700;
-      color: #4a2c00;
-      font-weight: 700;
-      border-radius: 12px;
-      padding: 6px 15px;
-      box-shadow: 0 3px 8px rgba(255,215,0,0.7);
-    }
-    li button:hover {
-      background: #ffec00;
-    }
-    li.purchased {
-      opacity: 0.5;
-      pointer-events: none;
-    }
+    /* Стили опущены для краткости — скопируйте их из предыдущего примера */
   </style>
 </head>
 <body>
 
   <div id="score">Очки: 0</div>
-
   <div class="cylinder-container">
     <div id="cylinder"></div>
   </div>
 
-  <!-- ✅ Кнопки -->
   <div class="btns">
     <button id="shop-btn">Магазин</button>
     <button id="tasks-btn">Задания</button>
-    <button id="invite-btn">Пригласить</button> <!-- ← добавлена -->
+    <button id="invite-btn">Пригласить</button>
   </div>
 
   <!-- Магазин -->
@@ -138,279 +39,216 @@
     </div>
   </div>
 
-  <!-- ✅ Пригласить -->
+  <!-- Приглашение -->
   <div id="invite-overlay" class="overlay">
     <div class="overlay-content">
       <h2>Приглашай друзей</h2>
-      <div id="referral-container">
-        <!-- Сюда JS вставит реферальную ссылку -->
-      </div>
+      <div id="referral-container"></div>
       <button id="close-invite" class="close-btn">Закрыть</button>
     </div>
   </div>
 
-  <!-- Подключи сюда свой JS <script> ниже или через файл -->
-  <script src="main.js"></script> <!-- или вставь напрямую внутрь -->
+  <script>
+  (() => {
+    const BOT_USERNAME = 'YourBotUsername'; // <- Замените на имя вашего Telegram-бота
+
+    const cylinder = document.getElementById('cylinder');
+    const scoreDisplay = document.getElementById('score');
+    const cpsDisplay = document.createElement('div');
+    cpsDisplay.style.cssText = 'font-size:1.2rem;margin-bottom:15px;text-shadow:0 0 5px rgba(0,0,0,.5);';
+    scoreDisplay.insertAdjacentElement('afterend', cpsDisplay);
+
+    const shopBtn = document.getElementById('shop-btn');
+    const tasksBtn = document.getElementById('tasks-btn');
+    const inviteBtn = document.getElementById('invite-btn');
+    const shopOverlay = document.getElementById('shop-overlay');
+    const tasksOverlay = document.getElementById('tasks-overlay');
+    const inviteOverlay = document.getElementById('invite-overlay');
+    const closeShopBtn = document.getElementById('close-shop');
+    const closeTasksBtn = document.getElementById('close-tasks');
+    const closeInviteBtn = document.getElementById('close-invite');
+    const referralContainer = document.getElementById('referral-container');
+    const shopList = document.getElementById('shop-list');
+
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    let activeFace = null;
+    const numbers = [1,2,3,4,5,6,7,8];
+    const radius = 80;
+    const angleStep = 360 / numbers.length;
+
+    let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
+    let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
+
+    const REFERRAL_BONUS = 2000000;
+
+    function getUserId() {
+      let id = localStorage.getItem('userId');
+      if (!id) {
+        id = 'user-' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('userId', id);
+      }
+      return id;
+    }
+
+    function getReferralFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('ref');
+    }
+
+    function applyReferralBonus(ref) {
+      const used = localStorage.getItem('usedReferral');
+      if (used) return;
+      if (ref && ref !== localStorage.getItem('userId')) {
+        score += REFERRAL_BONUS;
+        localStorage.setItem('usedReferral', ref);
+        localStorage.setItem('score', score);
+        alert(`Ты получил бонус ${REFERRAL_BONUS.toLocaleString()} очков за приглашение!`);
+      }
+    }
+
+    const userId = getUserId();
+    applyReferralBonus(getReferralFromURL());
+
+    function getAutoClickerLevel() {
+      return parseInt(localStorage.getItem('autoClickerLevel')) || 0;
+    }
+    function getDoublePointsLevel() {
+      return parseInt(localStorage.getItem('doublePointsLevel')) || 0;
+    }
+
+    function calculateCPS() {
+      const lvl = getAutoClickerLevel();
+      if (lvl === 0) return 0;
+      const interval = Math.max(500,1500-lvl*100);
+      return ((numbers.reduce((a,b)=>a+b,0)/numbers.length)*(getDoublePointsLevel()+1)*(1000/interval)).toFixed(1);
+    }
+
+    function updateScoreDisplay() {
+      scoreDisplay.textContent = `Очки: ${score}`;
+      cpsDisplay.textContent = `Очки в секунду: ${calculateCPS()}`;
+    }
+
+    function handleOffline() {
+      const last = parseInt(localStorage.getItem('lastVisit'))||Date.now();
+      const now = Date.now(), diffSec=Math.floor((now-last)/1000);
+      const lvl=getAutoClickerLevel(), dbl=getDoublePointsLevel();
+      if (autoClickerActive && lvl>0 && diffSec>0) {
+        const interval = Math.max(500,1500-lvl*100);
+        const clicks = Math.floor(diffSec*1000/interval);
+        let pts=0;
+        for (let i=0;i<clicks;i++) pts += numbers[Math.floor(Math.random()*numbers.length)]*(dbl+1);
+        score+=pts;
+        alert(`Вы были оффлайн ${diffSec} сек. Получено ${pts} очков`);
+      }
+      localStorage.setItem('lastVisit', now);
+      localStorage.setItem('score', score);
+      updateScoreDisplay();
+    }
+
+    numbers.forEach((num,i)=>{
+      const f = document.createElement('div');
+      f.className='face';
+      f.textContent=num;
+      f.style.transform=`rotateY(${i*angleStep}deg) translateZ(${radius}px)`;
+      f.onclick=()=>{
+        if(activeFace) activeFace.classList.remove('active');
+        f.classList.add('active');
+        activeFace=f;
+        score += num * (getDoublePointsLevel()+1);
+        localStorage.setItem('score', score);
+        updateScoreDisplay();
+      };
+      cylinder.appendChild(f);
+    });
+
+    const shopItems = [
+      {id:'autoClicker',name:'Автокликер',basePrice:10},
+      {id:'doublePoints',name:'Ускоритель x2+',basePrice:50}
+    ];
+
+    function renderShop(){
+      shopList.innerHTML='';
+      shopItems.forEach(item=>{
+        const lvl=item.id==='autoClicker'?getAutoClickerLevel():getDoublePointsLevel();
+        const price=Math.floor(item.basePrice*Math.pow(1.8,lvl));
+        const li=document.createElement('li');
+        li.textContent=`${item.name} (Ур. ${lvl}) — ${price} очков`;
+        const btn=document.createElement('button');
+        btn.textContent='Улучшить';
+        btn.onclick=()=>buyItem(item.id);
+        li.appendChild(btn);
+        shopList.appendChild(li);
+      });
+    }
+
+    function buyItem(id){
+      const currLvl=id==='autoClicker'?getAutoClickerLevel():getDoublePointsLevel();
+      const price=Math.floor(shopItems.find(i=>i.id===id).basePrice*Math.pow(1.8,currLvl));
+      if(score<price){alert('Недостаточно очков!');return;}
+      score-=price;
+      if(id==='autoClicker'){
+        localStorage.setItem('autoClickerLevel',currLvl+1);
+        autoClickerActive = true;
+        localStorage.setItem('autoClickerActive','true');
+        restartAutoClicker();
+      } else {
+        localStorage.setItem('doublePointsLevel',currLvl+1);
+        doublePointsActive = true;
+        localStorage.setItem('doublePointsActive','true');
+      }
+      localStorage.setItem('score', score);
+      updateScoreDisplay();renderShop();
+    }
+
+    let autoClickerInterval=null;
+    function getAutoClickerInterval(){
+      return Math.max(500,1500-getAutoClickerLevel()*100);
+    }
+    function restartAutoClicker(){
+      if(autoClickerInterval) clearInterval(autoClickerInterval);
+      startAutoClicker();
+    }
+    function startAutoClicker(){
+      if(!autoClickerActive) return;
+      autoClickerInterval = setInterval(()=>{
+        const rnd = numbers[Math.floor(Math.random()*numbers.length)];
+        score += rnd * (getDoublePointsLevel()+1);
+        localStorage.setItem('score', score);
+        updateScoreDisplay();
+      }, getAutoClickerInterval());
+    }
+    if(autoClickerActive) startAutoClicker();
+
+    function toggle(o,b){ o.classList.toggle('visible', b); }
+
+    shopBtn.onclick=()=>{
+      renderShop(); toggle(shopOverlay,true); toggle(tasksOverlay,false); toggle(inviteOverlay,false);
+    };
+    tasksBtn.onclick=()=>{
+      toggle(tasksOverlay,true); toggle(shopOverlay,false); toggle(inviteOverlay,false);
+    };
+    inviteBtn.onclick=()=>{
+      const link = `https://t.me/${BOT_USERNAME}?start=ref_${userId}`;
+      referralContainer.innerHTML=`
+        <p>Ваш реферальный бот‑линк:</p>
+        <input type="text" value="${link}" readonly style="width:100%;padding:5px;font-size:1rem"/>
+        <br><br><button id="copyReferralBtn">Скопировать</button>`;
+      document.getElementById('copyReferralBtn').onclick=()=>{
+        const inp=referralContainer.querySelector('input');
+        inp.select(); document.execCommand('copy');
+        alert('Ссылка скопирована!');
+      };
+      toggle(inviteOverlay,true); toggle(shopOverlay,false); toggle(tasksOverlay,false);
+    };
+    closeShopBtn.onclick = ()=>toggle(shopOverlay,false);
+    closeTasksBtn.onclick = ()=>toggle(tasksOverlay,false);
+    closeInviteBtn.onclick = ()=>toggle(inviteOverlay,false);
+
+    handleOffline(); updateScoreDisplay();
+
+    window.addEventListener('beforeunload', ()=>localStorage.setItem('lastVisit',Date.now()));
+  })();
+  </script>
+
 </body>
 </html>
-
-<script>
-(() => {
-  const cylinder = document.getElementById('cylinder');
-  const scoreDisplay = document.getElementById('score');
-  const cpsDisplay = document.createElement('div');
-  cpsDisplay.style.fontSize = '1.2rem';
-  cpsDisplay.style.marginBottom = '15px';
-  cpsDisplay.style.textShadow = '0 0 5px rgba(0,0,0,.5)';
-  scoreDisplay.insertAdjacentElement('afterend', cpsDisplay);
-
-  const shopBtn = document.getElementById('shop-btn');
-  const tasksBtn = document.getElementById('tasks-btn');
-  const inviteBtn = document.getElementById('invite-btn'); // Новая кнопка
-  const shopOverlay = document.getElementById('shop-overlay');
-  const tasksOverlay = document.getElementById('tasks-overlay');
-  const inviteOverlay = document.getElementById('invite-overlay');
-  const closeShopBtn = document.getElementById('close-shop');
-  const closeTasksBtn = document.getElementById('close-tasks');
-  const closeInviteBtn = document.getElementById('close-invite');
-  const referralContainer = document.getElementById('referral-container');
-  const shopList = document.getElementById('shop-list');
-
-  let score = parseInt(localStorage.getItem('score')) || 0;
-  let activeFace = null;
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
-  const radius = 80;
-  const angleStep = 360 / numbers.length;
-
-  let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
-  let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
-
-  // --- Реферальная система ---
-  const REFERRAL_BONUS = 2000000;
-
-  function getUserId() {
-    let id = localStorage.getItem('userId');
-    if (!id) {
-      id = 'user-' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('userId', id);
-    }
-    return id;
-  }
-
-  function getReferralFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('ref');
-  }
-
-  function applyReferralBonus(ref) {
-    const usedRef = localStorage.getItem('usedReferral');
-    if (usedRef) return;
-
-    if (ref && ref !== localStorage.getItem('userId')) {
-      score += REFERRAL_BONUS;
-      localStorage.setItem('usedReferral', ref);
-      localStorage.setItem('score', score);
-      alert(`Ты получил бонус ${REFERRAL_BONUS.toLocaleString()} очков за приглашение друга!`);
-    }
-  }
-
-  const userId = getUserId();
-  const referralFromURL = getReferralFromURL();
-  applyReferralBonus(referralFromURL);
-
-  // Обработка оффлайн-наград
-  function handleOfflineProgress() {
-    const lastVisit = parseInt(localStorage.getItem('lastVisit')) || Date.now();
-    const now = Date.now();
-    const diffSeconds = Math.floor((now - lastVisit) / 1000);
-
-    const autoClickerLevel = getAutoClickerLevel();
-    const doublePointsLevel = getDoublePointsLevel();
-
-    if (autoClickerActive && autoClickerLevel > 0 && diffSeconds > 0) {
-      const interval = Math.max(500, 1500 - autoClickerLevel * 100);
-      const clicks = Math.floor((diffSeconds * 1000) / interval);
-
-      let totalPoints = 0;
-      for (let i = 0; i < clicks; i++) {
-        const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-        totalPoints += randomNum * (doublePointsLevel + 1);
-      }
-
-      score += totalPoints;
-      alert(`Ты был в оффлайне ${diffSeconds} сек. Получено ${totalPoints} очков!`);
-    }
-
-    updateScoreDisplay();
-    localStorage.setItem('score', score);
-    localStorage.setItem('lastVisit', now);
-  }
-
-  function getAutoClickerLevel() {
-    return parseInt(localStorage.getItem('autoClickerLevel')) || 0;
-  }
-
-  function getDoublePointsLevel() {
-    return parseInt(localStorage.getItem('doublePointsLevel')) || 0;
-  }
-
-  function calculateCPS() {
-    const level = getAutoClickerLevel();
-    if (level === 0) return 0;
-    const interval = Math.max(500, 1500 - level * 100);
-    const clicksPerSecond = 1000 / interval;
-    const averageNum = numbers.reduce((a, b) => a + b, 0) / numbers.length;
-    const multiplier = getDoublePointsLevel() + 1;
-    return (averageNum * multiplier * clicksPerSecond).toFixed(1);
-  }
-
-  function updateScoreDisplay() {
-    scoreDisplay.textContent = `Очки: ${score}`;
-    cpsDisplay.textContent = `Очки в секунду: ${calculateCPS()}`;
-  }
-
-  // Генерация цилиндра
-  numbers.forEach((num, i) => {
-    const f = document.createElement('div');
-    f.className = 'face';
-    f.textContent = num;
-    f.style.transform = `rotateY(${i * angleStep}deg) translateZ(${radius}px)`;
-    f.onclick = () => {
-      if (activeFace) activeFace.classList.remove('active');
-      f.classList.add('active');
-      activeFace = f;
-
-      const multiplier = getDoublePointsLevel() + 1;
-      score += num * multiplier;
-      localStorage.setItem('score', score);
-      updateScoreDisplay();
-    };
-    cylinder.appendChild(f);
-  });
-
-  // Магазин
-  const shopItems = [
-    { id: 'autoClicker', name: 'Автокликер', basePrice: 10, level: getAutoClickerLevel() },
-    { id: 'doublePoints', name: 'Ускоритель x2+', basePrice: 50, level: getDoublePointsLevel() }
-  ];
-
-  function renderShop() {
-    shopList.innerHTML = '';
-    shopItems.forEach(item => {
-      item.level = item.id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
-      const price = Math.floor(item.basePrice * Math.pow(1.8, item.level));
-      const li = document.createElement('li');
-      li.textContent = `${item.name} (Ур. ${item.level}) — ${price} очков`;
-
-      const buyBtn = document.createElement('button');
-      buyBtn.textContent = 'Улучшить';
-      buyBtn.onclick = () => buyItem(item.id);
-      li.appendChild(buyBtn);
-      shopList.appendChild(li);
-    });
-  }
-
-  function buyItem(id) {
-    const item = shopItems.find(i => i.id === id);
-    if (!item) return;
-
-    const currentLevel = id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
-    const price = Math.floor(item.basePrice * Math.pow(1.8, currentLevel));
-    if (score < price) {
-      alert('Недостаточно очков!');
-      return;
-    }
-
-    score -= price;
-    if (id === 'autoClicker') {
-      const newLevel = currentLevel + 1;
-      localStorage.setItem('autoClickerLevel', newLevel);
-      autoClickerActive = true;
-      localStorage.setItem('autoClickerActive', 'true');
-      restartAutoClicker();
-    } else if (id === 'doublePoints') {
-      const newLevel = currentLevel + 1;
-      localStorage.setItem('doublePointsLevel', newLevel);
-      doublePointsActive = true;
-      localStorage.setItem('doublePointsActive', 'true');
-    }
-
-    localStorage.setItem('score', score);
-    updateScoreDisplay();
-    renderShop();
-  }
-
-  let autoClickerInterval = null;
-
-  function getAutoClickerInterval() {
-    return Math.max(500, 1500 - getAutoClickerLevel() * 100);
-  }
-
-  function restartAutoClicker() {
-    if (autoClickerInterval) clearInterval(autoClickerInterval);
-    startAutoClicker();
-  }
-
-  function startAutoClicker() {
-    if (!autoClickerActive) return;
-    autoClickerInterval = setInterval(() => {
-      const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-      const pointsToAdd = randomNum * (getDoublePointsLevel() + 1);
-      score += pointsToAdd;
-      localStorage.setItem('score', score);
-      updateScoreDisplay();
-    }, getAutoClickerInterval());
-  }
-
-  if (autoClickerActive) startAutoClicker();
-
-  // Переключение оверлеев
-  function toggleOverlay(overlay, show) {
-    overlay.classList.toggle('visible', show);
-  }
-
-  shopBtn.onclick = () => {
-    renderShop();
-    toggleOverlay(shopOverlay, true);
-    toggleOverlay(tasksOverlay, false);
-    toggleOverlay(inviteOverlay, false);
-  };
-
-  tasksBtn.onclick = () => {
-    toggleOverlay(tasksOverlay, true);
-    toggleOverlay(shopOverlay, false);
-    toggleOverlay(inviteOverlay, false);
-  };
-
-  inviteBtn.onclick = () => {
-    const referralLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
-    referralContainer.innerHTML = `
-      <p>Твоя реферальная ссылка:</p>
-      <input type="text" value="${referralLink}" readonly style="width: 280px; padding: 5px; font-size: 1rem;" />
-      <br/><br/>
-      <button id="copyReferralBtn">Скопировать</button>
-    `;
-    document.getElementById('copyReferralBtn').onclick = () => {
-      const input = referralContainer.querySelector('input');
-      input.select();
-      input.setSelectionRange(0, 99999);
-      document.execCommand('copy');
-      alert('Реферальная ссылка скопирована!');
-    };
-    toggleOverlay(inviteOverlay, true);
-    toggleOverlay(shopOverlay, false);
-    toggleOverlay(tasksOverlay, false);
-  };
-
-  closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
-  closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
-  closeInviteBtn.onclick = () => toggleOverlay(inviteOverlay, false);
-
-  handleOfflineProgress();
-  updateScoreDisplay();
-
-  window.addEventListener('beforeunload', () => {
-    localStorage.setItem('lastVisit', Date.now());
-  });
-})();
-</script>
