@@ -196,86 +196,90 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
   const generateBtn = document.getElementById('generate-btn');
-const downloadBtn = document.getElementById('download-btn');
-const textInput = document.getElementById('text-input');
-const qrCodeContainer = document.getElementById('qrcode');
-const statusMsg = document.getElementById('status-msg');
-const progressBar = document.getElementById('progress-bar');
-const progressFill = progressBar.querySelector('div');
+  const downloadBtn = document.getElementById('download-btn');
+  const textInput = document.getElementById('text-input');
+  const qrCodeContainer = document.getElementById('qrcode');
+  const statusMsg = document.getElementById('status-msg');
+  const progressBar = document.getElementById('progress-bar');
+  const progressFill = progressBar.querySelector('div');
 
-textInput.addEventListener('input', () => {
-  const hasText = textInput.value.trim().length > 0;
-  generateBtn.disabled = !hasText;
-  statusMsg.textContent = '';
-  qrCodeContainer.classList.remove('visible');
-  downloadBtn.style.display = 'none';
-  qrCodeContainer.innerHTML = '';
-});
+  textInput.addEventListener('input', () => {
+    const hasText = textInput.value.trim().length > 0;
+    generateBtn.disabled = !hasText;
+    statusMsg.textContent = '';
+    qrCodeContainer.classList.remove('visible');
+    downloadBtn.style.display = 'none';
+    qrCodeContainer.innerHTML = '';
+  });
 
-function simulateProgress(duration = 800) {
-  progressBar.style.display = 'block';
-  progressFill.style.width = '0%';
+  function simulateProgress(duration = 800) {
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
 
-  return new Promise((resolve) => {
-    let start = null;
-    function step(timestamp) {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      progressFill.style.width = `${progress * 100}%`;
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      } else {
-        progressBar.style.display = 'none';
-        resolve();
+    return new Promise((resolve) => {
+      let start = null;
+      function step(timestamp) {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        progressFill.style.width = `${progress * 100}%`;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          progressBar.style.display = 'none';
+          resolve();
+        }
       }
-    }
-    requestAnimationFrame(step);
-  });
-}
-
-generateBtn.addEventListener('click', async () => {
-  const text = textInput.value.trim();
-  if (!text) {
-    statusMsg.textContent = 'Введите текст или ссылку!';
-    return;
+      requestAnimationFrame(step);
+    });
   }
 
-  statusMsg.textContent = 'Генерируем QR-код...';
-  generateBtn.disabled = true;
-  downloadBtn.style.display = 'none';
-  qrCodeContainer.classList.remove('visible');
-  qrCodeContainer.innerHTML = '';
-
-  await simulateProgress();
-
-  QRCode.toCanvas(text, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
-    generateBtn.disabled = false;
-
-    if (err) {
-      statusMsg.textContent = 'Ошибка при генерации QR-кода.';
-      return console.error(err);
+  generateBtn.addEventListener('click', async () => {
+    const text = textInput.value.trim();
+    if (!text) {
+      statusMsg.textContent = 'Введите текст или ссылку!';
+      return;
     }
-    qrCodeContainer.appendChild(canvas);
-    qrCodeContainer.classList.add('visible');
-    statusMsg.textContent = 'QR-код готов!';
-    downloadBtn.style.display = 'inline-flex';
+
+    statusMsg.textContent = 'Генерируем QR-код...';
+    generateBtn.disabled = true;
+    downloadBtn.style.display = 'none';
+    qrCodeContainer.classList.remove('visible');
+    qrCodeContainer.innerHTML = '';
+
+    await simulateProgress();
+
+    QRCode.toCanvas(text, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
+      generateBtn.disabled = false;
+
+      if (err) {
+        statusMsg.textContent = 'Ошибка при генерации QR-кода.';
+        return console.error(err);
+      }
+      qrCodeContainer.appendChild(canvas);
+      qrCodeContainer.classList.add('visible');
+      statusMsg.textContent = 'QR-код готов!';
+      downloadBtn.style.display = 'inline-flex';
+    });
   });
-});
 
-downloadBtn.addEventListener('click', () => {
-  const canvas = qrCodeContainer.querySelector('canvas');
-  if (!canvas) {
-    alert('QR-код ещё не сгенерирован');
-    return;
-  }
+  downloadBtn.addEventListener('click', () => {
+    const canvas = qrCodeContainer.querySelector('canvas');
+    if (!canvas) {
+      alert('QR-код ещё не сгенерирован');
+      return;
+    }
 
-  const dataUrl = canvas.toDataURL('image/png');
+    const dataUrl = canvas.toDataURL('image/png');
 
-  const link = document.createElement('a');
-  link.href = dataUrl;
-  link.download = 'qrcode.png';
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'qrcode.png';
 
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-});
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+</script>
+
+</body>
+</html>
