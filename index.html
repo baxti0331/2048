@@ -1,132 +1,281 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Вращающиеся кольца в гравитационном поле</title>
-<style>
-  body {
-    margin: 0;
-    background: radial-gradient(circle at center, #080b12 0%, #000 100%);
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    perspective: 1400px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-
-  .space {
-    position: relative;
-    width: 500px;
-    height: 500px;
-    transform-style: preserve-3d;
-  }
-
-  .ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    border-radius: 50%;
-    border-style: solid;
-    border-color: rgba(150, 180, 255, 0.2);
-    background: radial-gradient(circle at center, rgba(150,180,255,0.15), transparent 70%);
-    box-shadow:
-      0 0 10px rgba(150, 180, 255, 0.3),
-      inset 0 0 15px rgba(180, 220, 255, 0.5);
-    transform-style: preserve-3d;
-    cursor: default;
-    animation-timing-function: linear;
-  }
-
-  /* Размеры, толщина и стартовые смещения */
-  .ring1 {
-    width: 320px;
-    height: 320px;
-    margin: -160px 0 0 -160px;
-    border-width: 7px;
-    animation-name: rotateY1, floatY1;
-    animation-duration: 24s, 6s;
-    animation-iteration-count: infinite;
-    animation-direction: normal, alternate;
-  }
-  .ring2 {
-    width: 260px;
-    height: 260px;
-    margin: -130px 0 0 -130px;
-    border-width: 6px;
-    animation-name: rotateY2, floatY2;
-    animation-duration: 18s, 5s;
-    animation-iteration-count: infinite;
-    animation-direction: reverse, alternate;
-  }
-  .ring3 {
-    width: 200px;
-    height: 200px;
-    margin: -100px 0 0 -100px;
-    border-width: 5px;
-    animation-name: rotateY3, floatY3;
-    animation-duration: 12s, 4s;
-    animation-iteration-count: infinite;
-    animation-direction: normal, alternate;
-  }
-  .ring4 {
-    width: 140px;
-    height: 140px;
-    margin: -70px 0 0 -70px;
-    border-width: 4px;
-    animation-name: rotateY4, floatY4;
-    animation-duration: 9s, 3.5s;
-    animation-iteration-count: infinite;
-    animation-direction: reverse, alternate;
-  }
-
-  /* Вращение колец вокруг вертикальной оси */
-  @keyframes rotateY1 {
-    from { transform: rotateY(0deg) rotateX(10deg) translateZ(0); }
-    to { transform: rotateY(360deg) rotateX(10deg) translateZ(0); }
-  }
-  @keyframes rotateY2 {
-    from { transform: rotateY(0deg) rotateX(-15deg) translateZ(0); }
-    to { transform: rotateY(-360deg) rotateX(-15deg) translateZ(0); }
-  }
-  @keyframes rotateY3 {
-    from { transform: rotateY(0deg) rotateX(20deg) translateZ(0); }
-    to { transform: rotateY(360deg) rotateX(20deg) translateZ(0); }
-  }
-  @keyframes rotateY4 {
-    from { transform: rotateY(0deg) rotateX(-25deg) translateZ(0); }
-    to { transform: rotateY(-360deg) rotateX(-25deg) translateZ(0); }
-  }
-
-  /* Плавное вертикальное “парение” */
-  @keyframes floatY1 {
-    0%   { transform: translateY(0) }
-    100% { transform: translateY(-15px) }
-  }
-  @keyframes floatY2 {
-    0%   { transform: translateY(0) }
-    100% { transform: translateY(10px) }
-  }
-  @keyframes floatY3 {
-    0%   { transform: translateY(0) }
-    100% { transform: translateY(-8px) }
-  }
-  @keyframes floatY4 {
-    0%   { transform: translateY(0) }
-    100% { transform: translateY(12px) }
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Цилиндр с числами и магазин</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: #eee;
+      margin: 0; padding: 20px;
+      overflow-x: hidden;
+    }
+    #cylinder {
+      width: 200px;
+      height: 200px;
+      margin: 40px auto;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: translateZ(-80px) rotateX(10deg);
+      perspective: 800px;
+    }
+    .face {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: #444;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 20px;
+      transition: background 0.3s;
+      user-select: none;
+      color: #eee;
+    }
+    .face.active {
+      background: #0af;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 0 10px #0af;
+    }
+    #score {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    button {
+      cursor: pointer;
+      padding: 8px 12px;
+      margin: 5px;
+      border: none;
+      background-color: #0af;
+      color: white;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #08c;
+    }
+    .overlay {
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      max-height: 400px;
+      background: #333;
+      border-radius: 8px;
+      box-shadow: 0 0 20px #000;
+      padding: 20px;
+      overflow-y: auto;
+      display: none;
+      z-index: 1000;
+      color: #eee;
+    }
+    .overlay.visible {
+      display: block;
+    }
+    .overlay button.close-btn {
+      background: #900;
+      float: right;
+      font-weight: bold;
+      margin: -10px -10px 10px 0;
+      padding: 4px 8px;
+      font-size: 14px;
+    }
+    .shop-item {
+      margin-bottom: 12px;
+      padding: 8px;
+      background: #444;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .shop-item.purchased {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    #buttons {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="space" aria-label="Вращающиеся кольца в гравитационном поле">
-  <div class="ring ring1" aria-label="Кольцо 1"></div>
-  <div class="ring ring2" aria-label="Кольцо 2"></div>
-  <div class="ring ring3" aria-label="Кольцо 3"></div>
-  <div class="ring ring4" aria-label="Кольцо 4"></div>
-</div>
+  <div id="score">Очки: 0</div>
+
+  <div id="cylinder"></div>
+
+  <div id="buttons">
+    <button id="shopBtn">Магазин</button>
+    <button id="tasksBtn">Задания (пока пусто)</button>
+  </div>
+
+  <!-- Магазин -->
+  <div id="shopOverlay" class="overlay">
+    <button id="closeShopBtn" class="close-btn">×</button>
+    <h2>Магазин</h2>
+    <div id="shopList"></div>
+  </div>
+
+  <!-- Задания (пока пусто) -->
+  <div id="tasksOverlay" class="overlay">
+    <button id="closeTasksBtn" class="close-btn">×</button>
+    <h2>Задания</h2>
+    <p>Здесь пока ничего нет.</p>
+  </div>
+
+<script>
+(() => {
+  const numbers = [1,2,3,4,5,6,7,8];
+  const radius = 80;
+  const angleStep = 360 / numbers.length;
+
+  const cylinder = document.getElementById('cylinder');
+  const scoreDisplay = document.getElementById('score');
+  const shopOverlay = document.getElementById('shopOverlay');
+  const tasksOverlay = document.getElementById('tasksOverlay');
+  const shopBtn = document.getElementById('shopBtn');
+  const tasksBtn = document.getElementById('tasksBtn');
+  const closeShopBtn = document.getElementById('closeShopBtn');
+  const closeTasksBtn = document.getElementById('closeTasksBtn');
+  const shopList = document.getElementById('shopList');
+
+  let activeFace = null;
+  let score = parseInt(localStorage.getItem('score')) || 0;
+
+  // Бонусы, загружаем из localStorage
+  let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
+  let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
+
+  const shopItems = [
+    { id: 'autoClicker', name: 'Автокликер', price: 50, purchased: autoClickerActive },
+    { id: 'doublePoints', name: 'Удвоение очков', price: 100, purchased: doublePointsActive },
+  ];
+
+  scoreDisplay.textContent = `Очки: ${score}`;
+
+  // Создаем числа на цилиндре
+  numbers.forEach((num, i) => {
+    const f = document.createElement('div');
+    f.className = 'face';
+    f.textContent = num;
+    f.style.transform = `rotateY(${i * angleStep}deg) translateZ(${radius}px)`;
+    f.onclick = () => {
+      if (activeFace) activeFace.classList.remove('active');
+      f.classList.add('active');
+      activeFace = f;
+
+      // Добавляем очки с учетом бонуса
+      let pointsToAdd = doublePointsActive ? num * 2 : num;
+      score += pointsToAdd;
+      scoreDisplay.textContent = `Очки: ${score}`;
+      localStorage.setItem('score', score);
+    };
+    cylinder.appendChild(f);
+  });
+
+  // Функция переключения оверлеев
+  const toggleOverlay = (overlay, show) => {
+    if (show) {
+      overlay.classList.add('visible');
+    } else {
+      overlay.classList.remove('visible');
+    }
+  };
+
+  shopBtn.onclick = () => {
+    renderShop();
+    toggleOverlay(shopOverlay, true);
+    toggleOverlay(tasksOverlay, false);
+  };
+  tasksBtn.onclick = () => {
+    toggleOverlay(tasksOverlay, true);
+    toggleOverlay(shopOverlay, false);
+  };
+  closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
+  closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
+
+  // Рендерим магазин
+  function renderShop() {
+    shopList.innerHTML = '';
+    shopItems.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'shop-item';
+      div.textContent = `${item.name} — Цена: ${item.price} очков`;
+      if (item.purchased) {
+        div.textContent += ' (Куплено)';
+        div.classList.add('purchased');
+      } else {
+        const buyBtn = document.createElement('button');
+        buyBtn.textContent = 'Купить';
+        buyBtn.onclick = () => buyItem(item.id);
+        div.appendChild(buyBtn);
+      }
+      shopList.appendChild(div);
+    });
+  }
+
+  // Покупка товара
+  function buyItem(id) {
+    const item = shopItems.find(i => i.id === id);
+    if (!item) return;
+    if (score < item.price) {
+      alert('Недостаточно очков!');
+      return;
+    }
+    if (item.purchased) {
+      alert('Уже куплено!');
+      return;
+    }
+
+    score -= item.price;
+    scoreDisplay.textContent = `Очки: ${score}`;
+    localStorage.setItem('score', score);
+
+    item.purchased = true;
+
+    if (id === 'autoClicker') {
+      autoClickerActive = true;
+      localStorage.setItem('autoClickerActive', 'true');
+      startAutoClicker();
+    }
+    if (id === 'doublePoints') {
+      doublePointsActive = true;
+      localStorage.setItem('doublePointsActive', 'true');
+    }
+
+    renderShop();
+  }
+
+  // Автокликер — добавляет очки каждые 1.5 секунды
+  function startAutoClicker() {
+    if (!autoClickerActive) return;
+    if (window.autoClickerInterval) return; // чтобы не запускать много раз
+
+    window.autoClickerInterval = setInterval(() => {
+      // Выбираем случайное число из массива
+      const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
+      let pointsToAdd = doublePointsActive ? randomNum * 2 : randomNum;
+      score += pointsToAdd;
+      scoreDisplay.textContent = `Очки: ${score}`;
+      localStorage.setItem('score', score);
+    }, 1500);
+  }
+
+  // Запускаем автокликер, если он куплен
+  if (autoClickerActive) {
+    startAutoClicker();
+  }
+})();
+</script>
 
 </body>
 </html>
