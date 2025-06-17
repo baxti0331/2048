@@ -3,103 +3,125 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Астрономические кольца с разным вращением</title>
+<title>Вращающиеся кольца в гравитационном поле</title>
 <style>
   body {
     margin: 0;
-    background: radial-gradient(circle at center, #001020, #000);
+    background: radial-gradient(circle at center, #080b12 0%, #000 100%);
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    perspective: 1200px;
-    font-family: Arial, sans-serif;
+    perspective: 1400px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
-  .scene {
+
+  .space {
     position: relative;
-    width: 400px;
-    height: 400px;
+    width: 500px;
+    height: 500px;
     transform-style: preserve-3d;
-    transform: rotateX(60deg);
   }
-  .planet {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120px;
-    height: 120px;
-    margin: -60px 0 0 -60px;
-    background: radial-gradient(circle at center, #cdb67b 0%, #604a1b 70%);
-    border-radius: 50%;
-    box-shadow:
-      inset 0 0 25px 10px #f3e1a1,
-      0 0 35px 10px rgba(255, 255, 160, 0.8);
-  }
+
   .ring {
     position: absolute;
     top: 50%;
     left: 50%;
     border-radius: 50%;
-    border: 6px solid rgba(255,255,255,0.2);
+    border-style: solid;
+    border-color: rgba(150, 180, 255, 0.2);
+    background: radial-gradient(circle at center, rgba(150,180,255,0.15), transparent 70%);
     box-shadow:
-      0 0 8px rgba(255,255,255,0.25),
-      inset 0 0 8px rgba(255,255,255,0.15);
-    background: radial-gradient(circle, rgba(255,255,255,0.12) 30%, transparent 70%);
+      0 0 10px rgba(150, 180, 255, 0.3),
+      inset 0 0 15px rgba(180, 220, 255, 0.5);
     transform-style: preserve-3d;
+    cursor: default;
+    animation-timing-function: linear;
   }
 
-  /* Размеры и начальные трансформации для колец */
+  /* Размеры, толщина и стартовые смещения */
   .ring1 {
     width: 320px;
     height: 320px;
     margin: -160px 0 0 -160px;
-    border-width: 6px;
-    animation: rotateCW 20s linear infinite;
-    transform-origin: center center;
+    border-width: 7px;
+    animation-name: rotateY1, floatY1;
+    animation-duration: 24s, 6s;
+    animation-iteration-count: infinite;
+    animation-direction: normal, alternate;
   }
   .ring2 {
-    width: 280px;
-    height: 280px;
-    margin: -140px 0 0 -140px;
-    border-width: 5px;
-    animation: rotateCCW 16s linear infinite;
-    transform-origin: center center;
-    transform: rotateX(10deg);
+    width: 260px;
+    height: 260px;
+    margin: -130px 0 0 -130px;
+    border-width: 6px;
+    animation-name: rotateY2, floatY2;
+    animation-duration: 18s, 5s;
+    animation-iteration-count: infinite;
+    animation-direction: reverse, alternate;
   }
   .ring3 {
-    width: 240px;
-    height: 240px;
-    margin: -120px 0 0 -120px;
-    border-width: 4px;
-    animation: rotateCW 12s linear infinite;
-    transform-origin: center center;
-    transform: rotateX(-12deg);
-  }
-  .ring4 {
     width: 200px;
     height: 200px;
     margin: -100px 0 0 -100px;
-    border-width: 3px;
-    animation: rotateCCW 10s linear infinite;
-    transform-origin: center center;
-    transform: rotateX(25deg);
+    border-width: 5px;
+    animation-name: rotateY3, floatY3;
+    animation-duration: 12s, 4s;
+    animation-iteration-count: infinite;
+    animation-direction: normal, alternate;
+  }
+  .ring4 {
+    width: 140px;
+    height: 140px;
+    margin: -70px 0 0 -70px;
+    border-width: 4px;
+    animation-name: rotateY4, floatY4;
+    animation-duration: 9s, 3.5s;
+    animation-iteration-count: infinite;
+    animation-direction: reverse, alternate;
   }
 
-  @keyframes rotateCW {
-    from { transform: rotateY(0deg); }
-    to { transform: rotateY(360deg); }
+  /* Вращение колец вокруг вертикальной оси */
+  @keyframes rotateY1 {
+    from { transform: rotateY(0deg) rotateX(10deg) translateZ(0); }
+    to { transform: rotateY(360deg) rotateX(10deg) translateZ(0); }
   }
-  @keyframes rotateCCW {
-    from { transform: rotateY(0deg); }
-    to { transform: rotateY(-360deg); }
+  @keyframes rotateY2 {
+    from { transform: rotateY(0deg) rotateX(-15deg) translateZ(0); }
+    to { transform: rotateY(-360deg) rotateX(-15deg) translateZ(0); }
+  }
+  @keyframes rotateY3 {
+    from { transform: rotateY(0deg) rotateX(20deg) translateZ(0); }
+    to { transform: rotateY(360deg) rotateX(20deg) translateZ(0); }
+  }
+  @keyframes rotateY4 {
+    from { transform: rotateY(0deg) rotateX(-25deg) translateZ(0); }
+    to { transform: rotateY(-360deg) rotateX(-25deg) translateZ(0); }
+  }
+
+  /* Плавное вертикальное “парение” */
+  @keyframes floatY1 {
+    0%   { transform: translateY(0) }
+    100% { transform: translateY(-15px) }
+  }
+  @keyframes floatY2 {
+    0%   { transform: translateY(0) }
+    100% { transform: translateY(10px) }
+  }
+  @keyframes floatY3 {
+    0%   { transform: translateY(0) }
+    100% { transform: translateY(-8px) }
+  }
+  @keyframes floatY4 {
+    0%   { transform: translateY(0) }
+    100% { transform: translateY(12px) }
   }
 </style>
 </head>
 <body>
 
-<div class="scene" aria-label="3D астрономические кольца вокруг планеты">
-  <div class="planet" aria-label="Планета"></div>
-  
+<div class="space" aria-label="Вращающиеся кольца в гравитационном поле">
   <div class="ring ring1" aria-label="Кольцо 1"></div>
   <div class="ring ring2" aria-label="Кольцо 2"></div>
   <div class="ring ring3" aria-label="Кольцо 3"></div>
