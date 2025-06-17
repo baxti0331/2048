@@ -150,33 +150,27 @@
 
   const shopBtn = document.getElementById('shop-btn');
   const tasksBtn = document.getElementById('tasks-btn');
+  const inviteBtn = document.getElementById('invite-btn'); // Новая кнопка
   const shopOverlay = document.getElementById('shop-overlay');
   const tasksOverlay = document.getElementById('tasks-overlay');
+  const inviteOverlay = document.getElementById('invite-overlay');
   const closeShopBtn = document.getElementById('close-shop');
   const closeTasksBtn = document.getElementById('close-tasks');
+  const closeInviteBtn = document.getElementById('close-invite');
+  const referralContainer = document.getElementById('referral-container');
   const shopList = document.getElementById('shop-list');
 
   let score = parseInt(localStorage.getItem('score')) || 0;
+  let activeFace = null;
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
+  const radius = 80;
+  const angleStep = 360 / numbers.length;
+
+  let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
+  let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
 
   // --- Реферальная система ---
   const REFERRAL_BONUS = 2000000;
-
-  function getReferralFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('ref');
-  }
-
-  function applyReferralBonus(ref) {
-    const usedRef = localStorage.getItem('usedReferral');
-    if (usedRef) return; // бонус уже был применён
-
-    if (ref && ref !== localStorage.getItem('userId')) {
-      score += REFERRAL_BONUS;
-      localStorage.setItem('usedReferral', ref);
-      localStorage.setItem('score', score);
-      alert(`Ты получил бонус ${REFERRAL_BONUS.toLocaleString()} очков за приглашение друга!`);
-    }
-  }
 
   function getUserId() {
     let id = localStorage.getItem('userId');
@@ -187,61 +181,28 @@
     return id;
   }
 
+  function getReferralFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('ref');
+  }
+
+  function applyReferralBonus(ref) {
+    const usedRef = localStorage.getItem('usedReferral');
+    if (usedRef) return;
+
+    if (ref && ref !== localStorage.getItem('userId')) {
+      score += REFERRAL_BONUS;
+      localStorage.setItem('usedReferral', ref);
+      localStorage.setItem('score', score);
+      alert(`Ты получил бонус ${REFERRAL_BONUS.toLocaleString()} очков за приглашение друга!`);
+    }
+  }
+
   const userId = getUserId();
   const referralFromURL = getReferralFromURL();
   applyReferralBonus(referralFromURL);
 
-  const referralDiv = document.createElement('div');
-  referralDiv.style.margin = '10px 0';
-  referralDiv.style.fontSize = '1rem';
-  referralDiv.style.color = '#333';
-
-  const referralLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
-  referralDiv.innerHTML = `
-    <div>Твоя реферальная ссылка: <input type="text" value="${referralLink}" readonly style="width:250px; padding: 2px 5px; font-size: 0.9rem;"/>
-    <button id="copyReferralBtn">Скопировать</button></div>
-  `;
-
-  scoreDisplay.insertAdjacentElement('beforebegin', referralDiv);
-
-  document.getElementById('copyReferralBtn').onclick = () => {
-    const input = referralDiv.querySelector('input');
-    input.select();
-    input.setSelectionRange(0, 99999); // для мобил
-    document.execCommand('copy');
-    alert('Реферальная ссылка скопирована!');
-  };
-
-  // ----------------------------------------
-  // Остальной код ниже
-
-  const numbers = [1,2,3,4,5,6,7,8];
-  const radius = 80;
-  const angleStep = 360 / numbers.length;
-
-  let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
-  let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
-
-  function getAutoClickerLevel() {
-    return parseInt(localStorage.getItem('autoClickerLevel')) || 0;
-  }
-  function getDoublePointsLevel() {
-    return parseInt(localStorage.getItem('doublePointsLevel')) || 0;
-  }
-
-  function calculateCPS() {
-    const level = getAutoClickerLevel();
-    if(level === 0) return 0;
-
-    const interval = Math.max(500, 1500 - level * 100);
-    const clicksPerSecond = 1000 / interval;
-
-    const averageNum = numbers.reduce((a,b) => a + b, 0) / numbers.length;
-    const multiplier = getDoublePointsLevel() + 1;
-
-    return (averageNum * multiplier * clicksPerSecond).toFixed(1);
-  }
-
+  // Обработка оффлайн-наград
   function handleOfflineProgress() {
     const lastVisit = parseInt(localStorage.getItem('lastVisit')) || Date.now();
     const now = Date.now();
@@ -269,6 +230,30 @@
     localStorage.setItem('lastVisit', now);
   }
 
+  function getAutoClickerLevel() {
+    return parseInt(localStorage.getItem('autoClickerLevel')) || 0;
+  }
+
+  function getDoublePointsLevel() {
+    return parseInt(localStorage.getItem('doublePointsLevel')) || 0;
+  }
+
+  function calculateCPS() {
+    const level = getAutoClickerLevel();
+    if (level === 0) return 0;
+    const interval = Math.max(500, 1500 - level * 100);
+    const clicksPerSecond = 1000 / interval;
+    const averageNum = numbers.reduce((a, b) => a + b, 0) / numbers.length;
+    const multiplier = getDoublePointsLevel() + 1;
+    return (averageNum * multiplier * clicksPerSecond).toFixed(1);
+  }
+
+  function updateScoreDisplay() {
+    scoreDisplay.textContent = `Очки: ${score}`;
+    cpsDisplay.textContent = `Очки в секунду: ${calculateCPS()}`;
+  }
+
+  // Генерация цилиндра
   numbers.forEach((num, i) => {
     const f = document.createElement('div');
     f.className = 'face';
@@ -280,33 +265,18 @@
       activeFace = f;
 
       const multiplier = getDoublePointsLevel() + 1;
-      const pointsToAdd = num * multiplier;
-      score += pointsToAdd;
-      updateScoreDisplay();
+      score += num * multiplier;
       localStorage.setItem('score', score);
+      updateScoreDisplay();
     };
     cylinder.appendChild(f);
   });
 
+  // Магазин
   const shopItems = [
-    {
-      id: 'autoClicker',
-      name: 'Автокликер',
-      basePrice: 10,
-      level: getAutoClickerLevel()
-    },
-    {
-      id: 'doublePoints',
-      name: 'Ускоритель x2+',
-      basePrice: 50,
-      level: getDoublePointsLevel()
-    }
+    { id: 'autoClicker', name: 'Автокликер', basePrice: 10, level: getAutoClickerLevel() },
+    { id: 'doublePoints', name: 'Ускоритель x2+', basePrice: 50, level: getDoublePointsLevel() }
   ];
-
-  function updateScoreDisplay() {
-    scoreDisplay.textContent = `Очки: ${score}`;
-    cpsDisplay.textContent = `Очки в секунду: ${calculateCPS()}`;
-  }
 
   function renderShop() {
     shopList.innerHTML = '';
@@ -320,7 +290,6 @@
       buyBtn.textContent = 'Улучшить';
       buyBtn.onclick = () => buyItem(item.id);
       li.appendChild(buyBtn);
-
       shopList.appendChild(li);
     });
   }
@@ -329,7 +298,7 @@
     const item = shopItems.find(i => i.id === id);
     if (!item) return;
 
-    const currentLevel = item.id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
+    const currentLevel = id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
     const price = Math.floor(item.basePrice * Math.pow(1.8, currentLevel));
     if (score < price) {
       alert('Недостаточно очков!');
@@ -343,13 +312,11 @@
       autoClickerActive = true;
       localStorage.setItem('autoClickerActive', 'true');
       restartAutoClicker();
-      alert(`${item.name} улучшен до уровня ${newLevel}`);
     } else if (id === 'doublePoints') {
       const newLevel = currentLevel + 1;
       localStorage.setItem('doublePointsLevel', newLevel);
       doublePointsActive = true;
       localStorage.setItem('doublePointsActive', 'true');
-      alert(`${item.name} улучшен до уровня ${newLevel}`);
     }
 
     localStorage.setItem('score', score);
@@ -360,8 +327,7 @@
   let autoClickerInterval = null;
 
   function getAutoClickerInterval() {
-    const level = getAutoClickerLevel();
-    return Math.max(500, 1500 - level * 100);
+    return Math.max(500, 1500 - getAutoClickerLevel() * 100);
   }
 
   function restartAutoClicker() {
@@ -371,22 +337,18 @@
 
   function startAutoClicker() {
     if (!autoClickerActive) return;
-
-    const intervalTime = getAutoClickerInterval();
     autoClickerInterval = setInterval(() => {
       const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-      const multiplier = getDoublePointsLevel() + 1;
-      const pointsToAdd = randomNum * multiplier;
+      const pointsToAdd = randomNum * (getDoublePointsLevel() + 1);
       score += pointsToAdd;
       localStorage.setItem('score', score);
       updateScoreDisplay();
-    }, intervalTime);
+    }, getAutoClickerInterval());
   }
 
-  if (autoClickerActive) {
-    startAutoClicker();
-  }
+  if (autoClickerActive) startAutoClicker();
 
+  // Переключение оверлеев
   function toggleOverlay(overlay, show) {
     overlay.classList.toggle('visible', show);
   }
@@ -395,15 +357,38 @@
     renderShop();
     toggleOverlay(shopOverlay, true);
     toggleOverlay(tasksOverlay, false);
+    toggleOverlay(inviteOverlay, false);
   };
 
   tasksBtn.onclick = () => {
     toggleOverlay(tasksOverlay, true);
     toggleOverlay(shopOverlay, false);
+    toggleOverlay(inviteOverlay, false);
+  };
+
+  inviteBtn.onclick = () => {
+    const referralLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
+    referralContainer.innerHTML = `
+      <p>Твоя реферальная ссылка:</p>
+      <input type="text" value="${referralLink}" readonly style="width: 280px; padding: 5px; font-size: 1rem;" />
+      <br/><br/>
+      <button id="copyReferralBtn">Скопировать</button>
+    `;
+    document.getElementById('copyReferralBtn').onclick = () => {
+      const input = referralContainer.querySelector('input');
+      input.select();
+      input.setSelectionRange(0, 99999);
+      document.execCommand('copy');
+      alert('Реферальная ссылка скопирована!');
+    };
+    toggleOverlay(inviteOverlay, true);
+    toggleOverlay(shopOverlay, false);
+    toggleOverlay(tasksOverlay, false);
   };
 
   closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
   closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
+  closeInviteBtn.onclick = () => toggleOverlay(inviteOverlay, false);
 
   handleOfflineProgress();
   updateScoreDisplay();
@@ -411,6 +396,5 @@
   window.addEventListener('beforeunload', () => {
     localStorage.setItem('lastVisit', Date.now());
   });
-
 })();
 </script>
