@@ -126,6 +126,7 @@
     opacity: 0;
     transform: scale(0.9);
     transition: opacity 0.4s ease, transform 0.4s ease;
+    max-width: 280px;
   }
 
   #qrcode.visible {
@@ -184,7 +185,7 @@
 
   <div class="buttons">
     <button id="generate-btn" disabled>Сгенерировать QR-код</button>
-    <button id="download-btn" style="display:none;" title="Скачать QR-код">
+    <button id="download-btn" style="display:none;" title="Скачать или поделиться QR-кодом">
       Скачать
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v6h4.66v-6h3.84L12 2z"/></svg>
     </button>
@@ -255,29 +256,63 @@
         statusMsg.textContent = 'Ошибка при генерации QR-кода.';
         return console.error(err);
       }
+
+      // Очистить контейнер и добавить canvas
+      qrCodeContainer.innerHTML = '';
       qrCodeContainer.appendChild(canvas);
+
+      // Добавляем картинку для долгого тапа — универсальный способ сохранения
+      const img = new Image();
+      img.src = canvas.toDataURL('image/png');
+      img.style.marginTop = '12px';
+      img.style.borderRadius = '14px';
+      img.alt = 'QR-код';
+      img.title = 'Нажмите и удерживайте, чтобы сохранить изображение';
+      qrCodeContainer.appendChild(img);
+
       qrCodeContainer.classList.add('visible');
-      statusMsg.textContent = 'QR-код готов!';
+      statusMsg.textContent = 'QR-код готов! Нажмите и удерживайте изображение, чтобы сохранить на телефон.';
       downloadBtn.style.display = 'inline-flex';
     });
   });
 
-  downloadBtn.addEventListener('click', () => {
+  // Кнопка "Скачать" — оба варианта:
+  downloadBtn.addEventListener('click', async () => {
     const canvas = qrCodeContainer.querySelector('canvas');
     if (!canvas) {
       alert('QR-код ещё не сгенерирован');
       return;
     }
 
-    const dataUrl = canvas.toDataURL('image/png');
+    // Проверяем поддержку Web Share API с файлами
+    if (navigator.canShare && navigator.canShare({ files: [] })) {
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          alert('Не удалось создать файл для обмена');
+          return;
+        }
+        const file = new File([blob], 'qrcode.png', { type: 'image/png' });
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'QR-код',
+            text: 'Сохраните или поделитесь QR-кодом',
+          });
+        } catch (err) {
+          alert('Ошибка при попытке поделиться: ' + err);
+        }
+      }, 'image/png');
+    } else {
+      // fallback — обычное скачивание файла
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'qrcode.png';
 
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'qrcode.png';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   });
 </script>
 
