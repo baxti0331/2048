@@ -156,27 +156,50 @@
   const radius = 80;
   const angleStep = 360 / numbers.length;
 
-  // Бонусы
   let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
   let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
 
-  // Обновление отображения очков
-  function updateScoreDisplay() {
-    scoreDisplay.textContent = `Очки: ${score}`;
+  // Обработка оффлайн-наград
+  function handleOfflineProgress() {
+    const lastVisit = parseInt(localStorage.getItem('lastVisit')) || Date.now();
+    const now = Date.now();
+    const diffSeconds = Math.floor((now - lastVisit) / 1000);
+
+    const autoClickerLevel = parseInt(localStorage.getItem('autoClickerLevel')) || 0;
+    const doublePointsLevel = parseInt(localStorage.getItem('doublePointsLevel')) || 0;
+
+    if (autoClickerActive && autoClickerLevel > 0 && diffSeconds > 0) {
+      const interval = Math.max(500, 1500 - autoClickerLevel * 100);
+      const clicks = Math.floor((diffSeconds * 1000) / interval);
+
+      let totalPoints = 0;
+      for (let i = 0; i < clicks; i++) {
+        const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
+        totalPoints += randomNum * (doublePointsLevel + 1);
+      }
+
+      score += totalPoints;
+      alert(`Ты был в оффлайне ${diffSeconds} сек. Получено ${totalPoints} очков!`);
+    }
+
+    updateScoreDisplay();
+    localStorage.setItem('score', score);
+    localStorage.setItem('lastVisit', now);
   }
 
-  // Создаем числа на цилиндре
+  // Создание лиц цилиндра
   numbers.forEach((num, i) => {
     const f = document.createElement('div');
     f.className = 'face';
     f.textContent = num;
     f.style.transform = `rotateY(${i * angleStep}deg) translateZ(${radius}px)`;
     f.onclick = () => {
-      if(activeFace) activeFace.classList.remove('active');
+      if (activeFace) activeFace.classList.remove('active');
       f.classList.add('active');
       activeFace = f;
 
-      let pointsToAdd = doublePointsActive ? num * 2 : num;
+      const multiplier = (parseInt(localStorage.getItem('doublePointsLevel')) || 0) + 1;
+      const pointsToAdd = num * multiplier;
       score += pointsToAdd;
       updateScoreDisplay();
       localStorage.setItem('score', score);
@@ -184,118 +207,110 @@
     cylinder.appendChild(f);
   });
 
-  // Товары магазина
+  // Список предметов
   const shopItems = [
-    {id: 'autoClicker', name: 'Автокликер', price: 10, purchased: autoClickerActive},
-    {id: 'doublePoints', name: 'Ускоритель клика x2', price: 50, purchased: doublePointsActive},
+    {
+      id: 'autoClicker',
+      name: 'Автокликер',
+      basePrice: 10,
+      level: parseInt(localStorage.getItem('autoClickerLevel')) || 0
+    },
+    {
+      id: 'doublePoints',
+      name: 'Ускоритель x2+',
+      basePrice: 50,
+      level: parseInt(localStorage.getItem('doublePointsLevel')) || 0
+    }
   ];
 
-  // Отрисовка магазина
+  // Обновление очков
+  function updateScoreDisplay() {
+    scoreDisplay.textContent = `Очки: ${score}`;
+  }
+
+  // Рендер магазина
   function renderShop() {
     shopList.innerHTML = '';
     shopItems.forEach(item => {
+      const price = Math.floor(item.basePrice * Math.pow(1.8, item.level));
       const li = document.createElement('li');
-      li.textContent = `${item.name} — ${item.price} очков`;
-      if(item.purchased) {
-        li.classList.add('purchased');
-        li.textContent += ' (Куплено)';
-      } else {
-        const buyBtn = document.createElement('button');
-        buyBtn.textContent = 'Купить';
-        buyBtn.onclick = () => buyItem(item.id);
-        li.appendChild(buyBtn);
-      }
+      li.textContent = `${item.name} (Ур. ${item.level}) — ${price} очков`;
+
+      const buyBtn = document.createElement('button');
+      buyBtn.textContent = 'Улучшить';
+      buyBtn.onclick = () => buyItem(item.id);
+      li.appendChild(buyBtn);
+
       shopList.appendChild(li);
     });
   }
 
-  // Покупка товара
+  // Покупка предмета
   function buyItem(id) {
     const item = shopItems.find(i => i.id === id);
-    if(!item) return;
-    if(item.purchased) {
-      alert('Уже куплено!');
-      return;
-    }
-    if(score < item.price) {
+    if (!item) return;
+
+    const price = Math.floor(item.basePrice * Math.pow(1.8, item.level));
+    if (score < price) {
       alert('Недостаточно очков!');
       return;
     }
 
-    score -= item.price;
-    updateScoreDisplay();
+    score -= price;
+    item.level++;
     localStorage.setItem('score', score);
+    localStorage.setItem(`${id}Level`, item.level);
+    updateScoreDisplay();
 
-    item.purchased = true;
-    if(id === 'autoClicker') {
+    if (id === 'autoClicker') {
       autoClickerActive = true;
       localStorage.setItem('autoClickerActive', 'true');
-      startAutoClicker();
+      restartAutoClicker();
     }
-    if(id === 'doublePoints') {
+
+    if (id === 'doublePoints') {
       doublePointsActive = true;
       localStorage.setItem('doublePointsActive', 'true');
     }
+
     renderShop();
+    alert(`${item.name} улучшен до уровня ${item.level}`);
   }
 
   // Автокликер
   let autoClickerInterval = null;
-  function startAutoClicker() {
-    if(autoClickerInterval) return;
-    autoClickerInterval = setInterval(() => {
-      const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-      let pointsToAdd = doublePointsActive ? randomNum * 2 : randomNum;
-      score += pointsToAdd;
-      updateScoreDisplay();
-      localStorage.setItem('score', score);
-    }, 1500);
+
+  function getAutoClickerInterval() {
+    const level = parseInt(localStorage.getItem('autoClickerLevel')) || 0;
+    return Math.max(500, 1500 - level * 100);
   }
-  if(autoClickerActive) {
+
+  function restartAutoClicker() {
+    if (autoClickerInterval) clearInterval(autoClickerInterval);
     startAutoClicker();
   }
 
-  // Оффлайн-доход
-  function getRandomAutoClickPoints() {
-    const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-    return doublePointsActive ? randomNum * 2 : randomNum;
-  }
+  function startAutoClicker() {
+    if (!autoClickerActive) return;
 
-  function handleOfflineEarnings() {
-    const lastExit = parseInt(localStorage.getItem('lastExitTime'));
-    const now = Date.now();
-
-    if (!lastExit || !autoClickerActive) return;
-
-    const secondsAway = Math.floor((now - lastExit) / 1000);
-    const interval = 1.5;
-    const clicks = Math.floor(secondsAway / interval);
-    let totalEarnings = 0;
-
-    for (let i = 0; i < clicks; i++) {
-      totalEarnings += getRandomAutoClickPoints();
-    }
-
-    if (totalEarnings > 0) {
-      score += totalEarnings;
+    const intervalTime = getAutoClickerInterval();
+    autoClickerInterval = setInterval(() => {
+      const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
+      const multiplier = (parseInt(localStorage.getItem('doublePointsLevel')) || 0) + 1;
+      const pointsToAdd = randomNum * multiplier;
+      score += pointsToAdd;
       localStorage.setItem('score', score);
       updateScoreDisplay();
-      alert(`Ты был в оффлайне ${secondsAway} сек. Получено ${totalEarnings} очков от автокликера!`);
-    }
+    }, intervalTime);
   }
 
-  // Сохраняем время выхода
-  window.addEventListener('beforeunload', () => {
-    localStorage.setItem('lastExitTime', Date.now());
-  });
+  if (autoClickerActive) {
+    startAutoClicker();
+  }
 
-  // Управление оверлеями
+  // Переключение оверлеев
   function toggleOverlay(overlay, show) {
-    if(show) {
-      overlay.classList.add('visible');
-    } else {
-      overlay.classList.remove('visible');
-    }
+    overlay.classList.toggle('visible', show);
   }
 
   shopBtn.onclick = () => {
@@ -303,15 +318,22 @@
     toggleOverlay(shopOverlay, true);
     toggleOverlay(tasksOverlay, false);
   };
+
   tasksBtn.onclick = () => {
     toggleOverlay(tasksOverlay, true);
     toggleOverlay(shopOverlay, false);
   };
+
   closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
   closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
 
-  handleOfflineEarnings();
+  // Вызов оффлайн-проверки
+  handleOfflineProgress();
   updateScoreDisplay();
 
+  // Сохраняем дату выхода при закрытии страницы
+  window.addEventListener('beforeunload', () => {
+    localStorage.setItem('lastVisit', Date.now());
+  });
 })();
 </script>
