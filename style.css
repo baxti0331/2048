@@ -1,96 +1,77 @@
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #faf8ef;
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  background: radial-gradient(circle, #222 30%, #000);
+  color: #ffd700;
+  font-family: 'Arial Black', sans-serif;
   text-align: center;
   user-select: none;
 }
 
+.slot-machine {
+  max-width: 400px;
+  margin: 60px auto;
+  background: #111;
+  border: 5px solid gold;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 20px gold, 0 0 10px red inset;
+}
+
 h1 {
-  color: #776e65;
   margin-bottom: 10px;
+  font-size: 2em;
+  color: gold;
+  text-shadow: 0 0 10px red;
 }
 
-#game-container {
-  position: relative;
-  margin: 0 auto;
-  width: 340px;
-  height: 340px;
-  background: #bbada0;
-  border-radius: 10px;
-  padding: 10px;
+.balance {
+  margin-bottom: 20px;
+  font-size: 1.2em;
 }
 
-#grid {
-  display: grid;
-  grid-template: repeat(4, 1fr) / repeat(4, 1fr);
+.reels {
+  display: flex;
+  justify-content: center;
   gap: 10px;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 320px;
-  height: 320px;
+  margin-bottom: 20px;
 }
 
-.cell {
-  width: 80px;
-  height: 80px;
-  background: #cdc1b4;
-  border-radius: 6px;
+.reel {
+  font-size: 3rem;
+  width: 70px;
+  height: 70px;
+  background: #222;
+  border: 3px solid gold;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 8px #000;
+  transition: transform 0.4s ease;
 }
 
-#tiles {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 320px;
-  height: 320px;
-  pointer-events: none;
-}
-
-.tile {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  border-radius: 6px;
-  font-size: 48px;
-  line-height: 80px;
-  text-align: center;
+button#spin {
+  background: linear-gradient(to bottom, #ffd700, #c49b00);
+  color: #000;
+  font-size: 1.2em;
   font-weight: bold;
-  color: #776e65;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.tile-2    { background: #eee4da; }
-.tile-4    { background: #ede0c8; }
-.tile-8    { background: #f2b179; color: #f9f6f2; }
-.tile-16   { background: #f59563; color: #f9f6f2; }
-.tile-32   { background: #f67c5f; color: #f9f6f2; }
-.tile-64   { background: #f65e3b; color: #f9f6f2; }
-.tile-128  { background: #edcf72; font-size: 36px; color: #f9f6f2; }
-.tile-256  { background: #edcc61; font-size: 36px; color: #f9f6f2; }
-.tile-512  { background: #edc850; font-size: 36px; color: #f9f6f2; }
-.tile-1024 { background: #edc53f; font-size: 24px; color: #f9f6f2; }
-.tile-2048 { background: #edc22e; font-size: 24px; color: #f9f6f2; }
-
-#score-container {
-  margin: 15px;
-  font-size: 24px;
-  color: #776e65;
-}
-
-#restart-btn {
-  padding: 10px 20px;
-  font-size: 18px;
-  background: #8f7a66;
   border: none;
-  color: white;
-  border-radius: 6px;
+  border-radius: 8px;
+  padding: 12px 24px;
   cursor: pointer;
-  transition: background 0.3s;
+  box-shadow: 0 4px #8a6f00;
+  transition: transform 0.2s;
 }
 
-#restart-btn:hover {
-  background: #9e8b7d;
+button#spin:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px #8a6f00;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 1.2em;
+  color: lime;
+  font-weight: bold;
 }
