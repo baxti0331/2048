@@ -153,16 +153,42 @@
     transition: width 0.2s ease;
   }
 
-  @media (max-width: 480px) {
-    .container {
-      padding: 20px;
-      max-width: 100%;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 1rem;
-      gap: 6px;
-    }
+  /* Модальное окно */
+  #modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  #modal.visible {
+    display: flex;
+  }
+
+  #modal img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 20px;
+    box-shadow: 0 0 40px rgba(255,255,255,0.3);
+  }
+
+  #modal-close {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #ff7e5f;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255,126,95,0.7);
+    user-select: none;
   }
 </style>
 </head>
@@ -179,19 +205,36 @@
 
   <div class="buttons">
     <button id="generate-btn" disabled>Сгенерировать QR-код</button>
+    <button id="download-btn" style="display:none;" title="Открыть QR-код на весь экран">
+      Скачать
+      <svg viewBox="0 0 24 24" aria-hidden="true" style="width:20px; height:20px; fill:#fff;">
+        <path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v6h4.66v-6h3.84L12 2z"/>
+      </svg>
+    </button>
   </div>
 
   <div id="qrcode"></div>
 </div>
 
+<!-- Модальное окно для полного экрана -->
+<div id="modal">
+  <button id="modal-close" title="Закрыть">&times;</button>
+  <img id="modal-img" alt="QR-код для сохранения" />
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
   const generateBtn = document.getElementById('generate-btn');
+  const downloadBtn = document.getElementById('download-btn');
   const textInput = document.getElementById('text-input');
   const qrCodeContainer = document.getElementById('qrcode');
   const statusMsg = document.getElementById('status-msg');
   const progressBar = document.getElementById('progress-bar');
   const progressFill = progressBar.querySelector('div');
+
+  const modal = document.getElementById('modal');
+  const modalImg = document.getElementById('modal-img');
+  const modalClose = document.getElementById('modal-close');
 
   textInput.addEventListener('input', () => {
     const hasText = textInput.value.trim().length > 0;
@@ -199,6 +242,7 @@
     statusMsg.textContent = '';
     qrCodeContainer.classList.remove('visible');
     qrCodeContainer.innerHTML = '';
+    downloadBtn.style.display = 'none';
   });
 
   function simulateProgress(duration = 800) {
@@ -233,6 +277,7 @@
     generateBtn.disabled = true;
     qrCodeContainer.classList.remove('visible');
     qrCodeContainer.innerHTML = '';
+    downloadBtn.style.display = 'none';
 
     await simulateProgress();
 
@@ -244,21 +289,33 @@
         return console.error(err);
       }
 
-      qrCodeContainer.innerHTML = '';
       qrCodeContainer.appendChild(canvas);
-
-      // Добавляем картинку для долгого нажатия (сохраняется через меню "сохранить изображение")
-      const img = new Image();
-      img.src = canvas.toDataURL('image/png');
-      img.style.marginTop = '12px';
-      img.style.borderRadius = '14px';
-      img.alt = 'QR-код';
-      img.title = 'Нажмите и удерживайте изображение, чтобы сохранить на телефон';
-      qrCodeContainer.appendChild(img);
-
       qrCodeContainer.classList.add('visible');
-      statusMsg.textContent = 'QR-код готов! Нажмите и удерживайте изображение, чтобы сохранить.';
+      statusMsg.textContent = 'QR-код готов!';
+
+      // Показываем кнопку "Скачать"
+      downloadBtn.style.display = 'inline-flex';
+
+      // Сохраняем dataURL для модалки
+      downloadBtn.dataset.imgUrl = canvas.toDataURL('image/png');
     });
+  });
+
+  downloadBtn.addEventListener('click', () => {
+    // Показываем модальное окно с изображением
+    modalImg.src = downloadBtn.dataset.imgUrl;
+    modal.classList.add('visible');
+  });
+
+  modalClose.addEventListener('click', () => {
+    modal.classList.remove('visible');
+  });
+
+  // Закрыть модал по клику вне картинки
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('visible');
+    }
   });
 </script>
 
