@@ -3,167 +3,384 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Цилиндр с числами — Минималка</title>
+<title>3D Цилиндр + Магазин и Задания</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
   body, html {
-    margin:0; padding:0; height:100%;
+    margin: 0; padding: 0; height: 100%;
     background: linear-gradient(135deg, #667eea, #764ba2);
     font-family: 'Montserrat', sans-serif;
-    color:#fff;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    user-select:none;
+    color: white;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  #score { font-size:2rem; margin-bottom:20px; text-shadow:0 0 10px rgba(0,0,0,.5);}
+
+  #score {
+    margin: 20px 0 10px 0;
+    font-size: 2rem;
+    text-shadow: 0 0 8px rgba(0,0,0,0.5);
+  }
+
   .cylinder-container {
-    perspective:1200px; width:200px; height:200px; position:relative;
+    perspective: 1200px;
+    width: 200px;
+    height: 200px;
+    position: relative;
   }
-  #cylinder {
-    width:150px; height:150px; position:absolute; top:25px; left:25px;
+
+  .cylinder {
+    width: 150px;
+    height: 150px;
+    position: absolute;
+    top: 25px;
+    left: 25px;
     transform-style: preserve-3d;
-    animation:spin 8s linear infinite;
+    animation: spin 8s linear infinite;
   }
+
   @keyframes spin {
+    from { transform: rotateX(0deg) rotateY(0deg); }
     to { transform: rotateX(360deg) rotateY(360deg); }
   }
+
   .face {
-    position:absolute; width:100px; height:40px; left:25px; top:55px;
+    position: absolute;
+    width: 100px;
+    height: 40px;
+    left: 25px;
+    top: 55px;
     background: linear-gradient(135deg, #f6d365, #fda085);
-    border-radius:20px;
-    box-shadow: inset 0 0 10px #fff8cc, 0 6px 15px rgba(253,160,133,.7);
-    display:flex; justify-content:center; align-items:center;
-    font-weight:700; font-size:1.5rem; color:#4a2c00;
-    cursor:pointer; user-select:none;
-    transition:background-color .3s ease, transform .3s ease;
+    border-radius: 20px;
+    box-shadow: inset 0 0 10px #fff8cc, 0 6px 15px rgba(253,160,133,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #4a2c00;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
   }
-  .face:hover { background: linear-gradient(135deg,#fbd786,#f7797d); transform: scale(1.1);}
-  .active {
-    background:#ffce00; color:#3a2600; transform: scale(1.3);
+
+  .face:hover {
+    background: linear-gradient(135deg, #fbd786, #f7797d);
+    transform: scale(1.1);
+  }
+
+  .face.active {
+    background: #ffce00;
+    color: #3a2600;
+    transform: scale(1.3);
     box-shadow: 0 0 15px #ffce00;
   }
-  .btns {
-    margin-top: 230px;
-    display:flex; gap:15px;
+
+  .buttons-container {
+    margin-top: 180px;
+    display: flex;
+    gap: 20px;
   }
-  button {
-    background:linear-gradient(135deg,#ff7e5f,#feb47b);
-    border:none; border-radius:25px; padding:12px 30px;
-    font-weight:700; font-size:1rem; color:#3a2600;
-    cursor:pointer; box-shadow:0 5px 15px rgba(255,126,95,.6);
-    user-select:none;
-    transition: background .3s ease, transform .2s ease;
+
+  button.btn {
+    background: linear-gradient(135deg, #43cea2, #185a9d);
+    border: none;
+    padding: 12px 24px;
+    color: white;
+    font-weight: 700;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    font-size: 1.1rem;
+    transition: background 0.3s ease, transform 0.2s ease;
   }
-  button:hover { background:linear-gradient(135deg,#feb47b,#ff7e5f); transform:scale(1.05);}
+  button.btn:hover {
+    background: linear-gradient(135deg, #60d39f, #2374bf);
+    transform: scale(1.05);
+  }
+
   .overlay {
-    position: fixed; bottom:0; left:0; right:0;
-    background:#22294ddd; color:#fff; max-height:40vh;
-    padding:20px; box-shadow:0 -5px 20px rgba(0,0,0,.7);
-    display:flex; justify-content:center; align-items:center;
-    z-index:10;
-    transform: translateY(100%);
-    transition: transform .3s ease;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
   }
-  .overlay.visible { transform: translateY(0); }
-  .overlay-content {
-    width:100%; max-width:500px;
-    background:#3a3f6b; border-radius:15px;
-    padding:20px; box-shadow: 0 0 15px #000a;
-    text-align:center;
+  .overlay.visible {
+    display: flex;
   }
+
   .close-btn {
-    margin-top:15px;
-    background:#ff5555; color:#fff; box-shadow:none;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    cursor: pointer;
+    align-self: flex-end;
+    margin-bottom: 10px;
   }
-  .close-btn:hover {
-    background:#ff2222;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+  }
+
+  li {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    padding: 8px 12px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  li button {
+    background: #fff;
+    color: #333;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  li button:hover {
+    background-color: #e0e0e0;
+  }
+
+  form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  form input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+  }
+  form button {
+    background: #4facfe;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  form button:hover {
+    background-color: #00f2fe;
   }
 </style>
 </head>
 <body>
 
-<div id="score">Очки: 0</div>
+  <div id="score">Очки: 0</div>
 
-<div class="cylinder-container">
-  <div id="cylinder"></div>
-</div>
+  <div class="cylinder-container">
+    <div class="cylinder" id="cylinder"></div>
+  </div>
 
-<div class="btns">
-  <button id="shop-btn">Магазин</button>
-  <button id="tasks-btn">Задания</button>
-</div>
+  <div class="buttons-container">
+    <button id="shop-btn" class="btn">Магазин 🛒</button>
+    <button id="tasks-btn" class="btn">Задания 📋</button>
+  </div>
 
-<!-- Магазин -->
-<div id="shop-overlay" class="overlay">
-  <div class="overlay-content">
+  <!-- Магазин -->
+  <div id="shop-overlay" class="overlay" aria-hidden="true">
+    <button id="close-shop" class="close-btn" aria-label="Закрыть магазин">&times;</button>
     <h2>Магазин</h2>
-    <ul>
-      <li>Автокликер — 10 очков</li>
-      <li>Ускоритель клика x2 — 50 очков</li>
-    </ul>
-    <button id="close-shop" class="close-btn">Закрыть</button>
+    <ul id="shop-list"></ul>
   </div>
-</div>
 
-<!-- Задания -->
-<div id="tasks-overlay" class="overlay">
-  <div class="overlay-content">
+  <!-- Задания -->
+  <div id="tasks-overlay" class="overlay" aria-hidden="true">
+    <button id="close-tasks" class="close-btn" aria-label="Закрыть задания">&times;</button>
     <h2>Задания</h2>
-    <p>Пока пусто</p>
-    <button id="close-tasks" class="close-btn">Закрыть</button>
+    <form id="add-task-form">
+      <input type="text" id="task-name" placeholder="Название задания" required />
+      <input type="url" id="task-link" placeholder="Ссылка (например /start)" required />
+      <button type="submit">Добавить задание</button>
+    </form>
+    <ul id="tasks-list"></ul>
   </div>
-</div>
 
 <script>
 (() => {
   const cylinder = document.getElementById('cylinder');
   const scoreDisplay = document.getElementById('score');
+
+  let score = 0;
+  let activeFace = null;
+  let autoClickPower = 0;
+  let clickMultiplier = 1;
+
+  // Создаем 3D цилиндр с цифрами
+  const numbers = [1,2,3,4,5,6,7,8];
+  const facesCount = numbers.length;
+  const radius = 80;
+  const angleStep = 360 / facesCount;
+
+  numbers.forEach((num, i) => {
+    const face = document.createElement('div');
+    face.classList.add('face');
+    face.textContent = num;
+
+    const rotateY = i * angleStep;
+    face.style.transform = `rotateY(${rotateY}deg) translateZ(${radius}px)`;
+
+    face.addEventListener('click', () => {
+      if (activeFace) activeFace.classList.remove('active');
+      face.classList.add('active');
+      activeFace = face;
+
+      score += num * clickMultiplier;
+      updateScore();
+    });
+
+    cylinder.appendChild(face);
+  });
+
+  function updateScore() {
+    scoreDisplay.textContent = `Очки: ${score}`;
+  }
+
+  // Автокликер — прибавляет очки каждую секунду
+  setInterval(() => {
+    if (autoClickPower > 0) {
+      score += autoClickPower;
+      updateScore();
+    }
+  }, 1000);
+
+  // Кнопки и оверлеи
   const shopBtn = document.getElementById('shop-btn');
   const tasksBtn = document.getElementById('tasks-btn');
   const shopOverlay = document.getElementById('shop-overlay');
   const tasksOverlay = document.getElementById('tasks-overlay');
-  const closeShopBtn = document.getElementById('close-shop');
-  const closeTasksBtn = document.getElementById('close-tasks');
-
-  let score = 0, activeFace = null;
-  const numbers = [1,2,3,4,5,6,7,8];
-  const radius = 80;
-  const angleStep = 360 / numbers.length;
-
-  // Создаем числа на цилиндре
-  numbers.forEach((num, i) => {
-    const f = document.createElement('div');
-    f.className = 'face';
-    f.textContent = num;
-    f.style.transform = `rotateY(${i * angleStep}deg) translateZ(${radius}px)`;
-    f.onclick = () => {
-      if(activeFace) activeFace.classList.remove('active');
-      f.classList.add('active');
-      activeFace = f;
-      score += num;
-      scoreDisplay.textContent = `Очки: ${score}`;
-    };
-    cylinder.appendChild(f);
-  });
-
-  // Управление оверлеями
-  const toggleOverlay = (overlay, show) => {
-    if(show) {
-      overlay.classList.add('visible');
-    } else {
-      overlay.classList.remove('visible');
-    }
-  };
+  const closeShop = document.getElementById('close-shop');
+  const closeTasks = document.getElementById('close-tasks');
 
   shopBtn.onclick = () => {
-    toggleOverlay(shopOverlay, true);
-    toggleOverlay(tasksOverlay, false);
+    shopOverlay.classList.add('visible');
+    tasksOverlay.classList.remove('visible');
   };
+
   tasksBtn.onclick = () => {
-    toggleOverlay(tasksOverlay, true);
-    toggleOverlay(shopOverlay, false);
+    tasksOverlay.classList.add('visible');
+    shopOverlay.classList.remove('visible');
   };
-  closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
-  closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
+
+  closeShop.onclick = () => shopOverlay.classList.remove('visible');
+  closeTasks.onclick = () => tasksOverlay.classList.remove('visible');
+
+  // Магазин
+  const shopList = document.getElementById('shop-list');
+  const shopItems = [
+    {
+      id: 'autoClicker',
+      name: 'Автокликер',
+      level: 0,
+      basePrice: 50,
+      effectDesc: 'Добавляет +1 очко в секунду за уровень',
+      getPrice() {
+        return Math.floor(this.basePrice * Math.pow(1.5, this.level));
+      },
+      buy() {
+        if(score >= this.getPrice()) {
+          score -= this.getPrice();
+          this.level++;
+          autoClickPower = this.level; // мощность автокликера = уровень
+          updateScore();
+          renderShop();
+        }
+      }
+    },
+    {
+      id: 'clickPower',
+      name: 'Усиление клика x2',
+      level: 0,
+      basePrice: 100,
+      effectDesc: 'Удваивает очки с кликов за уровень',
+      getPrice() {
+        return Math.floor(this.basePrice * Math.pow(2, this.level));
+      },
+      buy() {
+        if(score >= this.getPrice()) {
+          score -= this.getPrice();
+          this.level++;
+          clickMultiplier = 2 ** this.level; // множитель клика
+          updateScore();
+          renderShop();
+        }
+      }
+    }
+  ];
+
+  function renderShop() {
+    shopList.innerHTML = '';
+    shopItems.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div>
+          <strong>${item.name}</strong> (уровень: ${item.level})<br>
+          <small>${item.effectDesc}</small>
+        </div>
+        <button>Купить за ${item.getPrice()}</button>
+      `;
+      const btn = li.querySelector('button');
+      btn.onclick = () => {
+        item.buy();
+      };
+      shopList.appendChild(li);
+    });
+  }
+
+  renderShop();
+
+  // Задания
+  const tasksList = document.getElementById('tasks-list');
+  const addTaskForm = document.getElementById('add-task-form');
+  const taskNameInput = document.getElementById('task-name');
+  const taskLinkInput = document.getElementById('task-link');
+
+  let tasks = [];
+
+  addTaskForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = taskNameInput.value.trim();
+    const link = taskLinkInput.value.trim();
+    if (!name || !link) return;
+
+    const task = { id: Date.now(), name, link };
+    tasks.push(task);
+    renderTasks();
+    addTaskForm.reset();
+  });
+
+  function renderTasks() {
+    tasksList.innerHTML = '';
+    tasks.forEach(t => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div>${t.name}</div>
+        <button onclick="window.location.href='${t.link}'">Выполнить</button>
+      `;
+      tasksList.appendChild(li);
+    });
+  }
 })();
 </script>
 
