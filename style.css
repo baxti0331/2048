@@ -1,54 +1,83 @@
 body {
   margin: 0;
   padding: 0;
-  background: radial-gradient(circle, #222 30%, #000);
+  background: radial-gradient(circle at center, #222 30%, #000 100%);
   color: #ffd700;
   font-family: 'Arial Black', sans-serif;
-  text-align: center;
-  user-select: none;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .slot-machine {
-  max-width: 400px;
-  margin: 60px auto;
   background: #111;
   border: 5px solid gold;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 0 20px gold, 0 0 10px red inset;
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 0 25px gold, 0 0 10px red inset;
+  width: 90%;
+  max-width: 420px;
 }
 
 h1 {
-  margin-bottom: 10px;
   font-size: 2em;
   color: gold;
-  text-shadow: 0 0 10px red;
+  margin-bottom: 15px;
+  text-shadow: 0 0 8px red;
 }
 
 .balance {
-  margin-bottom: 20px;
   font-size: 1.2em;
+  margin-bottom: 20px;
 }
 
 .reels {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
 .reel {
   font-size: 3rem;
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   background: #222;
   border: 3px solid gold;
-  border-radius: 10px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: inset 0 0 8px #000;
-  transition: transform 0.4s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.reel.spin::before {
+  content: '🎲';
+  position: absolute;
+  top: -100%;
+  animation: spinReel 0.4s linear forwards;
+  font-size: 2.5rem;
+  opacity: 0.8;
+}
+
+@keyframes spinReel {
+  0% {
+    top: -100%;
+    opacity: 0;
+  }
+  50% {
+    top: 0%;
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 button#spin {
