@@ -4,13 +4,167 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Дневник питания с советами и слайдером</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      color: #333;
+    }
+    .container {
+      background: rgba(255 255 255 / 0.9);
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      max-width: 480px;
+      width: 100%;
+      padding: 30px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 0;
+      font-weight: 600;
+      color: #ff6f91;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 20px;
+      border: 2px solid #ff6f91;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+    select:focus, input[type="number"]:focus {
+      border-color: #ff4382;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      background: #ff6f91;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #ff4382;
+    }
+    .log {
+      max-height: 250px;
+      overflow-y: auto;
+      border-top: 2px solid #ff6f91;
+      padding-top: 20px;
+    }
+    .entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-weight: 500;
+    }
+    .total {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      color: #ff4382;
+      margin-top: 25px;
+    }
+    .advice {
+      background: #fff0f5;
+      padding: 15px 20px;
+      border-radius: 10px;
+      border: 1.5px solid #ff6f91;
+      color: #b3003b;
+      font-weight: 600;
+      font-size: 16px;
+      min-height: 60px;
+      margin-top: 15px;
+    }
+    /* Слайдер */
+    .slider {
+      position: relative;
+      background: #fff7fb;
+      border: 2px solid #ff6f91;
+      border-radius: 12px;
+      padding: 20px;
+      user-select: none;
+      overflow: hidden;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slide {
+      position: absolute;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      text-align: center;
+      font-weight: 600;
+      font-size: 18px;
+      color: #ff4382;
+      padding: 0 15px;
+      line-height: 1.3;
+    }
+    .slide.active {
+      opacity: 1;
+      position: relative;
+    }
+    .slider-controls {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .slider-controls button {
+      background: #ff6f91;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      margin: 0 8px;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .slider-controls button:hover {
+      background: #ff4382;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>Дневник питания</h1>
     <label for="product">Выберите продукт:</label>
-    <select id="product">
+    <select id="product" aria-label="Выберите продукт">
       <option value="" disabled selected>-- Выберите продукт --</option>
       <option value="яблоко" data-calories="52" data-category="фрукты">Яблоко (52 ккал/100г)</option>
       <option value="банан" data-calories="89" data-category="фрукты">Банан (89 ккал/100г)</option>
@@ -23,13 +177,13 @@
     </select>
 
     <label for="grams">Количество (грамм):</label>
-    <input type="number" id="grams" min="1" placeholder="Введите граммы" />
+    <input type="number" id="grams" min="1" placeholder="Введите граммы" aria-label="Количество в граммах" />
 
-    <button id="addBtn">Добавить прием пищи</button>
+    <button id="addBtn" aria-label="Добавить прием пищи">Добавить прием пищи</button>
 
-    <div class="log" id="log"></div>
+    <div class="log" id="log" aria-live="polite" aria-atomic="true"></div>
     <div class="total" id="totalCalories">Всего калорий: 0</div>
-    <div class="advice" id="advice">Добавляйте приемы пищи, чтобы получить советы</div>
+    <div class="advice" id="advice" aria-live="polite" aria-atomic="true">Добавляйте приемы пищи, чтобы получить советы</div>
 
     <div class="slider" aria-label="Советы по питанию">
       <div class="slide active">Пейте достаточно воды — это важно для здоровья.</div>
