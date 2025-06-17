@@ -2,158 +2,66 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Дневник питания с советами и слайдером</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Конвертер валют</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
-    * {
-      box-sizing: border-box;
-    }
     body {
       margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #c3ecf5, #f9c5d1);
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: 40px 20px;
-      color: #333;
+      align-items: center;
+      height: 100vh;
     }
-    .container {
-      background: rgba(255 255 255 / 0.9);
-      border-radius: 12px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-      max-width: 480px;
-      width: 100%;
-      padding: 30px 40px;
+    .converter {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      width: 350px;
       display: flex;
       flex-direction: column;
-      gap: 30px;
+      gap: 20px;
     }
-    h1 {
+    h2 {
+      margin: 0;
       text-align: center;
-      margin-bottom: 0;
-      font-weight: 600;
-      color: #ff6f91;
+      color: #444;
     }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #555;
-    }
-    select, input[type="number"] {
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 20px;
-      border: 2px solid #ff6f91;
-      border-radius: 8px;
+    select, input {
+      padding: 12px;
       font-size: 16px;
-      transition: border-color 0.3s ease;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+      transition: border-color 0.3s;
     }
-    select:focus, input[type="number"]:focus {
-      border-color: #ff4382;
+    select:focus, input:focus {
+      border-color: #66c;
       outline: none;
     }
     button {
-      width: 100%;
-      padding: 12px;
-      font-size: 18px;
-      background: #ff6f91;
-      border: none;
-      border-radius: 8px;
+      background-color: #66c;
       color: white;
-      font-weight: 700;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
+      font-weight: bold;
       transition: background 0.3s ease;
     }
     button:hover {
-      background: #ff4382;
+      background-color: #559;
     }
-    .log {
-      max-height: 250px;
-      overflow-y: auto;
-      border-top: 2px solid #ff6f91;
-      padding-top: 20px;
-    }
-    .entry {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-      font-weight: 500;
-    }
-    .total {
-      font-size: 22px;
-      font-weight: 700;
+    .result {
+      font-size: 20px;
+      font-weight: bold;
       text-align: center;
-      color: #ff4382;
-      margin-top: 25px;
+      color: #333;
+      min-height: 24px;
     }
-    .advice {
-      background: #fff0f5;
-      padding: 15px 20px;
-      border-radius: 10px;
-      border: 1.5px solid #ff6f91;
-      color: #b3003b;
-      font-weight: 600;
-      font-size: 16px;
-      min-height: 60px;
-      margin-top: 15px;
-    }
-    /* Слайдер */
-    .slider {
-      position: relative;
-      background: #fff7fb;
-      border: 2px solid #ff6f91;
-      border-radius: 12px;
-      padding: 20px;
-      user-select: none;
-      overflow: hidden;
-      height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .slide {
-      position: absolute;
-      width: 100%;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      text-align: center;
-      font-weight: 600;
-      font-size: 18px;
-      color: #ff4382;
-      padding: 0 15px;
-      line-height: 1.3;
-    }
-    .slide.active {
-      opacity: 1;
-      position: relative;
-    }
-    .slider-controls {
-      margin-top: 10px;
-      text-align: center;
-    }
-    .slider-controls button {
-      background: #ff6f91;
-      border: none;
-      color: white;
-      padding: 8px 15px;
-      margin: 0 8px;
-      font-weight: 700;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .slider-controls button:hover {
-      background: #ff4382;
-    }
-
     .footer {
-      margin-top: 20px;
       text-align: center;
       font-size: 12px;
       color: #999;
@@ -161,45 +69,27 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Дневник питания</h1>
-    <label for="product">Выберите продукт:</label>
-    <select id="product" aria-label="Выберите продукт">
-      <option value="" disabled selected>-- Выберите продукт --</option>
-      <option value="яблоко" data-calories="52" data-category="фрукты">Яблоко (52 ккал/100г)</option>
-      <option value="банан" data-calories="89" data-category="фрукты">Банан (89 ккал/100г)</option>
-      <option value="курица" data-calories="165" data-category="мясо">Курица (165 ккал/100г)</option>
-      <option value="рис" data-calories="130" data-category="углеводы">Рис (130 ккал/100г)</option>
-      <option value="картофель" data-calories="77" data-category="овощи">Картофель (77 ккал/100г)</option>
-      <option value="морковь" data-calories="41" data-category="овощи">Морковь (41 ккал/100г)</option>
-      <option value="хлеб" data-calories="265" data-category="углеводы">Хлеб (265 ккал/100г)</option>
-      <option value="молоко" data-calories="42" data-category="молочные">Молоко (42 ккал/100г)</option>
+  <div class="converter">
+    <h2>Конвертер валют</h2>
+    <input type="number" id="amount" placeholder="Сумма" min="0" />
+    <select id="from">
+      <option value="RUB">🇷🇺 RUB</option>
+      <option value="USD" selected>🇺🇸 USD</option>
+      <option value="EUR">🇪🇺 EUR</option>
+      <option value="GBP">🇬🇧 GBP</option>
+      <option value="JPY">🇯🇵 JPY</option>
     </select>
-
-    <label for="grams">Количество (грамм):</label>
-    <input type="number" id="grams" min="1" placeholder="Введите граммы" aria-label="Количество в граммах" />
-
-    <button id="addBtn" aria-label="Добавить прием пищи">Добавить прием пищи</button>
-
-    <div class="log" id="log" aria-live="polite" aria-atomic="true"></div>
-    <div class="total" id="totalCalories">Всего калорий: 0</div>
-    <div class="advice" id="advice" aria-live="polite" aria-atomic="true">Добавляйте приемы пищи, чтобы получить советы</div>
-
-    <div class="slider" aria-label="Советы по питанию">
-      <div class="slide active">Пейте достаточно воды — это важно для здоровья.</div>
-      <div class="slide">Регулярное питание помогает поддерживать энергию в течение дня.</div>
-      <div class="slide">Добавляйте овощи и фрукты для витаминов и клетчатки.</div>
-      <div class="slide">Контролируйте порции, чтобы избежать переедания.</div>
-      <div class="slide">Белок важен для восстановления и роста мышц.</div>
-    </div>
-    <div class="slider-controls">
-      <button id="prevBtn" aria-label="Предыдущий совет">←</button>
-      <button id="nextBtn" aria-label="Следующий совет">→</button>
-    </div>
-
-    <div class="footer">Данные сохраняются в браузере</div>
+    <select id="to">
+      <option value="RUB" selected>🇷🇺 RUB</option>
+      <option value="USD">🇺🇸 USD</option>
+      <option value="EUR">🇪🇺 EUR</option>
+      <option value="GBP">🇬🇧 GBP</option>
+      <option value="JPY">🇯🇵 JPY</option>
+    </select>
+    <button onclick="convert()">Конвертировать</button>
+    <div class="result" id="result">Введите сумму</div>
+    <div class="footer">Курсы от exchangerate.host</div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
