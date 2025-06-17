@@ -3,430 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Реферальный кликер</title>
+  <title>Цилиндр с числами — Минималка</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #222;
-      color: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      user-select: none;
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    body, html {
+      margin:0; padding:0; height:100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-family: 'Montserrat', sans-serif;
+      color:#fff;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      user-select:none;
+    }
+    #score { font-size:2rem; margin-bottom:20px; text-shadow:0 0 10px rgba(0,0,0,.5);}
+    .cylinder-container {
+      perspective:1200px; width:200px; height:200px; position:relative;
     }
     #cylinder {
-      width: 160px;
-      height: 160px;
-      margin: 20px 0;
-      position: relative;
+      width:150px; height:150px; position:absolute; top:25px; left:25px;
       transform-style: preserve-3d;
-      perspective: 600px;
-      cursor: pointer;
+      animation:spin 8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotateX(360deg) rotateY(360deg); }
     }
     .face {
-      position: absolute;
-      width: 100%;
-      height: 20px;
-      line-height: 20px;
-      color: #fff;
-      background: #0066cc;
-      border-radius: 6px;
-      text-align: center;
-      left: 0;
-      top: 50%;
-      margin-top: -10px;
-      box-shadow: 0 0 6px #0099ff;
-      transition: background-color 0.3s;
-      user-select: none;
+      position:absolute; width:100px; height:40px; left:25px; top:55px;
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      border-radius:20px;
+      box-shadow: inset 0 0 10px #fff8cc, 0 6px 15px rgba(253,160,133,.7);
+      display:flex; justify-content:center; align-items:center;
+      font-weight:700; font-size:1.5rem; color:#4a2c00;
+      cursor:pointer; user-select:none;
+      transition:background-color .3s ease, transform .3s ease;
     }
-    .face.active {
-      background-color: #ff9900;
-      box-shadow: 0 0 15px #ff9900;
-      font-weight: bold;
+    .face:hover { background: linear-gradient(135deg,#fbd786,#f7797d); transform: scale(1.1);}
+    .active {
+      background:#ffce00; color:#3a2600; transform: scale(1.3);
+      box-shadow: 0 0 15px #ffce00;
     }
-    #score {
-      font-size: 2rem;
-      margin-bottom: 10px;
-      text-shadow: 0 0 7px #000;
+    .btns {
+      margin-top: 230px;
+      display:flex; gap:15px;
     }
     button {
-      background-color: #007acc;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      margin: 0 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background-color 0.3s;
+      background:linear-gradient(135deg,#ff7e5f,#feb47b);
+      border:none; border-radius:25px; padding:12px 30px;
+      font-weight:700; font-size:1rem; color:#3a2600;
+      cursor:pointer; box-shadow:0 5px 15px rgba(255,126,95,.6);
+      user-select:none;
+      transition: background .3s ease, transform .2s ease;
     }
-    button:hover:not(:disabled) {
-      background-color: #005fa3;
-    }
-    button:disabled {
-      background-color: #555;
-      cursor: not-allowed;
-    }
-    /* Оверлеи */
+    button:hover { background:linear-gradient(135deg,#feb47b,#ff7e5f); transform:scale(1.05);}
     .overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      padding: 20px;
+      position: fixed; bottom:0; left:0; right:0;
+      background:#22294ddd; color:#fff; max-height:40vh;
+      padding:20px; box-shadow:0 -5px 20px rgba(0,0,0,.7);
+      display:flex; justify-content:center; align-items:center;
+      z-index:10;
+      transform: translateY(100%);
+      transition: transform .3s ease;
     }
-    .overlay.visible {
-      display: flex;
-    }
+    .overlay.visible { transform: translateY(0); }
     .overlay-content {
-      background: #333;
-      padding: 20px;
+      width:100%; max-width:500px;
+      background:#3a3f6b; border-radius:15px;
+      padding:20px; box-shadow: 0 0 15px #000a;
+      text-align:center;
+    }
+    .close-btn {
+      margin-top:15px;
+      background:#ff5555; color:#fff; box-shadow:none;
+    }
+    .close-btn:hover {
+      background:#ff2222;
+    }
+    ul {
+      list-style:none; padding:0; margin: 0 0 15px 0;
+    }
+    li {
+      margin-bottom:10px;
+      display:flex; justify-content: space-between; align-items:center;
+      background: #555a8d;
+      padding: 10px 15px;
       border-radius: 10px;
-      max-width: 400px;
-      width: 100%;
-      color: #eee;
-      box-shadow: 0 0 15px #000;
-      user-select: text;
+      font-weight: 700;
     }
-    .overlay-content h2 {
-      margin-top: 0;
-      text-align: center;
+    li button {
+      background: #ffd700;
+      color: #4a2c00;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 6px 15px;
+      box-shadow: 0 3px 8px rgba(255,215,0,0.7);
     }
-    .overlay-content ul {
-      list-style: none;
-      padding: 0;
+    li button:hover {
+      background: #ffec00;
     }
-    .overlay-content ul li {
-      margin: 10px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .overlay-content button {
-      margin-left: 10px;
-      padding: 5px 10px;
-      font-size: 0.9rem;
-    }
-    #referral-container input {
-      font-size: 1rem;
-      border-radius: 8px;
-      border: none;
-      padding: 10px;
-      width: 100%;
-      text-align: center;
-      user-select: all;
+    li.purchased {
+      opacity: 0.5;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
+
   <div id="score">Очки: 0</div>
-  <div id="cylinder"></div>
-  <div style="margin-bottom: 15px;"></div>
-  <div>
+
+  <div class="cylinder-container">
+    <div id="cylinder"></div>
+  </div>
+
+  <div class="btns">
     <button id="shop-btn">Магазин</button>
-    <button id="tasks-btn">Задачи</button>
+    <button id="tasks-btn">Задания</button>
     <button id="invite-btn">Пригласить</button>
   </div>
 
-  <!-- Оверлей Магазина -->
   <div id="shop-overlay" class="overlay">
     <div class="overlay-content">
       <h2>Магазин</h2>
       <ul id="shop-list"></ul>
-      <button id="close-shop">Закрыть</button>
+      <button id="close-shop" class="close-btn">Закрыть</button>
     </div>
   </div>
 
-  <!-- Оверлей Задач (пустой) -->
   <div id="tasks-overlay" class="overlay">
     <div class="overlay-content">
-      <h2>Задачи</h2>
-      <p>Здесь пока нет задач.</p>
-      <button id="close-tasks">Закрыть</button>
+      <h2>Задания</h2>
+      <p>Пока пусто</p>
+      <button id="close-tasks" class="close-btn">Закрыть</button>
     </div>
   </div>
 
-  <!-- Оверлей Реферальной ссылки -->
   <div id="invite-overlay" class="overlay">
     <div class="overlay-content">
-      <h2>Ваша реферальная ссылка</h2>
+      <h2>Приглашай друзей</h2>
       <div id="referral-container"></div>
-      <button id="close-invite">Закрыть</button>
+      <button id="close-invite" class="close-btn">Закрыть</button>
     </div>
   </div>
 
-  <script>
-    (() => {
-  const cylinder = document.getElementById('cylinder');
-  const scoreDisplay = document.getElementById('score');
-  const cpsDisplay = document.createElement('div');
-  cpsDisplay.style.fontSize = '1.2rem';
-  cpsDisplay.style.marginBottom = '15px';
-  cpsDisplay.style.textShadow = '0 0 5px rgba(0,0,0,.5)';
-  scoreDisplay.insertAdjacentElement('afterend', cpsDisplay);
-
-  const shopBtn = document.getElementById('shop-btn');
-  const tasksBtn = document.getElementById('tasks-btn');
-  const inviteBtn = document.getElementById('invite-btn');
-  const shopOverlay = document.getElementById('shop-overlay');
-  const tasksOverlay = document.getElementById('tasks-overlay');
-  const inviteOverlay = document.getElementById('invite-overlay');
-  const closeShopBtn = document.getElementById('close-shop');
-  const closeTasksBtn = document.getElementById('close-tasks');
-  const closeInviteBtn = document.getElementById('close-invite');
-  const referralContainer = document.getElementById('referral-container');
-  const shopList = document.getElementById('shop-list');
-
-  let score = parseInt(localStorage.getItem('score')) || 0;
-  let activeFace = null;
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8];
-  const radius = 80;
-  const angleStep = 360 / numbers.length;
-
-  let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
-  let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
-
-  // Функция для обновления отображения очков
-  function updateScoreDisplay() {
-    scoreDisplay.textContent = `Очки: ${score.toLocaleString()}`;
-    cpsDisplay.textContent = `Автокликер: ${getAutoClickerLevel()} | Х2 очков: ${getDoublePointsLevel()}`;
-    localStorage.setItem('score', score);
-  }
-
-  // Функция для создания 3D цилиндра с числами
-  function createCylinder() {
-    cylinder.innerHTML = '';
-    numbers.forEach((num, i) => {
-      const face = document.createElement('div');
-      face.className = 'face';
-      face.textContent = num;
-      const angle = angleStep * i;
-      face.style.transform = `rotateX(${angle}deg) translateZ(${radius}px)`;
-      face.onclick = () => {
-        if (activeFace) activeFace.classList.remove('active');
-        face.classList.add('active');
-        activeFace = face;
-        const pointsEarned = num * (doublePointsActive ? (getDoublePointsLevel() + 1) : 1);
-        score += pointsEarned;
-        updateScoreDisplay();
-      };
-      cylinder.appendChild(face);
-    });
-  }
-
-  // --- Реферальная система ---
-  const REFERRAL_BONUS = 2000000;
-
-  function getUserId() {
-    let id = localStorage.getItem('userId');
-    if (!id) {
-      id = 'user-' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('userId', id);
-    }
-    return id;
-  }
-
-  function getReferralFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('ref');
-  }
-
-  function applyReferralBonus(ref) {
-    const usedRef = localStorage.getItem('usedReferral');
-    if (usedRef) return;
-
-    if (ref && ref !== localStorage.getItem('userId')) {
-      score += REFERRAL_BONUS;
-      localStorage.setItem('usedReferral', ref);
-      localStorage.setItem('score', score);
-      alert(`Ты получил бонус ${REFERRAL_BONUS.toLocaleString()} очков за приглашение друга!`);
-    }
-  }
-
-  const userId = getUserId();
-  const referralFromURL = getReferralFromURL();
-  applyReferralBonus(referralFromURL);
-
-  const referralBase =  https://t.me/paymentsucbot// Здесь твой домен для рефералки
-
-  // Создаем реферальную ссылку для текущего пользователя
-  function createReferralLink() {
-    return `${referralBase}?ref=${userId}`;
-  }
-
-  // Отображаем реферальную ссылку в интерфейсе
-  function showReferralLink() {
-    referralContainer.innerHTML = '';
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.readOnly = true;
-    input.value = createReferralLink();
-    input.style.width = '100%';
-    input.style.padding = '10px';
-    input.style.fontSize = '1rem';
-    input.style.borderRadius = '8px';
-    input.style.border = 'none';
-    input.style.textAlign = 'center';
-    input.style.userSelect = 'all';
-    referralContainer.appendChild(input);
-
-    // Кнопка копирования
-    const copyBtn = document.createElement('button');
-    copyBtn.textContent = 'Копировать ссылку';
-    copyBtn.style.marginTop = '10px';
-    copyBtn.onclick = () => {
-      input.select();
-      document.execCommand('copy');
-      alert('Ссылка скопирована в буфер обмена!');
-    };
-    referralContainer.appendChild(copyBtn);
-  }
-
-  // Магазин - простая реализация
-  const shopItems = [
-    { id: 'autoClicker', name: 'Автокликер', price: 1000 },
-    { id: 'doublePoints', name: 'Х2 очков', price: 5000 },
-  ];
-
-  function getAutoClickerLevel() {
-    return parseInt(localStorage.getItem('autoClickerLevel')) || 0;
-  }
-
-  function getDoublePointsLevel() {
-    return parseInt(localStorage.getItem('doublePointsLevel')) || 0;
-  }
-
-  function updateShopList() {
-    shopList.innerHTML = '';
-    shopItems.forEach(item => {
-      const li = document.createElement('li');
-      const ownedLevel = item.id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
-
-      li.textContent = `${item.name} (Уровень: ${ownedLevel}) — ${item.price.toLocaleString()} очков`;
-
-      const buyBtn = document.createElement('button');
-      buyBtn.textContent = 'Купить';
-      buyBtn.disabled = score < item.price;
-
-      buyBtn.onclick = () => {
-        if (score >= item.price) {
-          score -= item.price;
-          if (item.id === 'autoClicker') {
-            localStorage.setItem('autoClickerLevel', ownedLevel + 1);
-            localStorage.setItem('autoClickerActive', 'true');
-            autoClickerActive = true;
-          } else if (item.id === 'doublePoints') {
-            localStorage.setItem('doublePointsLevel', ownedLevel + 1);
-            localStorage.setItem('doublePointsActive', 'true');
-            doublePointsActive = true;
-          }
-          updateScoreDisplay();
-          updateShopList();
-          alert(`Ты купил ${item.name}!`);
-        }
-      };
-
-      li.appendChild(buyBtn);
-      shopList.appendChild(li);
-    });
-  }
-
-  // Автокликер — добавляем клики каждую секунду с учетом уровня
-  setInterval(() => {
-    if (autoClickerActive) {
-      const level = getAutoClickerLevel();
-      if (level > 0) {
-        const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-        const points = randomNum * (doublePointsActive ? (getDoublePointsLevel() + 1) : 1);
-        score += points * level;
-        updateScoreDisplay();
-      }
-    }
-  }, 1000);
-
-  // Обработка оффлайн-наград
-  function handleOfflineProgress() {
-    const lastVisit = parseInt(localStorage.getItem('lastVisit')) || Date.now();
-    const now = Date.now();
-    const diffSeconds = Math.floor((now - lastVisit) / 1000);
-
-    const autoClickerLevel = getAutoClickerLevel();
-    const doublePointsLevel = getDoublePointsLevel();
-
-    if (autoClickerActive && autoClickerLevel > 0 && diffSeconds > 0) {
-      const interval = Math.max(500, 1500 - autoClickerLevel * 100);
-      const clicks = Math.floor((diffSeconds * 1000) / interval);
-
-      let totalPoints = 0;
-      for (let i = 0; i < clicks; i++) {
-        const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-        totalPoints += randomNum * (doublePointsLevel + 1);
-      }
-
-      score += totalPoints;
-      alert(`Ты был в оффлайне ${diffSeconds} сек. Получено ${totalPoints} очков!`);
-    }
-
-    updateScoreDisplay();
-    toggleOverlay(shopOverlay, false);
-    toggleOverlay(tasksOverlay, false);
-    toggleOverlay(inviteOverlay, false);
-  }
-
-  // Управление оверлеями
-  function toggleOverlay(overlay, show) {
-    if (show) overlay.classList.add('visible');
-    else overlay.classList.remove('visible');
-  }
-
-  function closeAllOverlays() {
-    toggleOverlay(shopOverlay, false);
-    toggleOverlay(tasksOverlay, false);
-    toggleOverlay(inviteOverlay, false);
-  }
-
-  // Обработчики кнопок
-  shopBtn.onclick = () => {
-    closeAllOverlays();
-    updateShopList();
-    toggleOverlay(shopOverlay, true);
-  };
-
-  tasksBtn.onclick = () => {
-    closeAllOverlays();
-    toggleOverlay(tasksOverlay, true);
-  };
-
-  inviteBtn.onclick = () => {
-    closeAllOverlays();
-    showReferralLink();
-    toggleOverlay(inviteOverlay, true);
-  };
-
-  closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
-  closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
-  closeInviteBtn.onclick = () => toggleOverlay(inviteOverlay, false);
-
-  // Создаем цилиндр с числами
-  createCylinder();
-
-  // Обновляем счет при старте
-  updateScoreDisplay();
-
-  // Обрабатываем оффлайн-награды при загрузке страницы
-  handleOfflineProgress();
-
-  // Сохраняем время визита для оффлайн-наград
-  window.addEventListener('beforeunload', () => {
-    localStorage.setItem('lastVisit', Date.now());
-  });
-})();/* Вставьте сюда объединённый скрипт из моего предыдущего сообщения */
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
