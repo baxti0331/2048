@@ -1,142 +1,158 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Цилиндр с числами — Минималка</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
-  body, html {
-    margin:0; padding:0; height:100%;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    font-family: 'Montserrat', sans-serif;
-    color:#fff;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    user-select:none;
-  }
-  #score { font-size:2rem; margin-bottom:20px; text-shadow:0 0 10px rgba(0,0,0,.5);}
-  .cylinder-container {
-    perspective:1200px; width:200px; height:200px; position:relative;
-  }
-  #cylinder {
-    width:150px; height:150px; position:absolute; top:25px; left:25px;
-    transform-style: preserve-3d;
-    animation:spin 8s linear infinite;
-  }
-  @keyframes spin {
-    to { transform: rotateX(360deg) rotateY(360deg); }
-  }
-  .face {
-    position:absolute; width:100px; height:40px; left:25px; top:55px;
-    background: linear-gradient(135deg, #f6d365, #fda085);
-    border-radius:20px;
-    box-shadow: inset 0 0 10px #fff8cc, 0 6px 15px rgba(253,160,133,.7);
-    display:flex; justify-content:center; align-items:center;
-    font-weight:700; font-size:1.5rem; color:#4a2c00;
-    cursor:pointer; user-select:none;
-    transition:background-color .3s ease, transform .3s ease;
-  }
-  .face:hover { background: linear-gradient(135deg,#fbd786,#f7797d); transform: scale(1.1);}
-  .active {
-    background:#ffce00; color:#3a2600; transform: scale(1.3);
-    box-shadow: 0 0 15px #ffce00;
-  }
-  .btns {
-    margin-top: 230px;
-    display:flex; gap:15px;
-  }
-  button {
-    background:linear-gradient(135deg,#ff7e5f,#feb47b);
-    border:none; border-radius:25px; padding:12px 30px;
-    font-weight:700; font-size:1rem; color:#3a2600;
-    cursor:pointer; box-shadow:0 5px 15px rgba(255,126,95,.6);
-    user-select:none;
-    transition: background .3s ease, transform .2s ease;
-  }
-  button:hover { background:linear-gradient(135deg,#feb47b,#ff7e5f); transform:scale(1.05);}
-  .overlay {
-    position: fixed; bottom:0; left:0; right:0;
-    background:#22294ddd; color:#fff; max-height:40vh;
-    padding:20px; box-shadow:0 -5px 20px rgba(0,0,0,.7);
-    display:flex; justify-content:center; align-items:center;
-    z-index:10;
-    transform: translateY(100%);
-    transition: transform .3s ease;
-  }
-  .overlay.visible { transform: translateY(0); }
-  .overlay-content {
-    width:100%; max-width:500px;
-    background:#3a3f6b; border-radius:15px;
-    padding:20px; box-shadow: 0 0 15px #000a;
-    text-align:center;
-  }
-  .close-btn {
-    margin-top:15px;
-    background:#ff5555; color:#fff; box-shadow:none;
-  }
-  .close-btn:hover {
-    background:#ff2222;
-  }
-  ul {
-    list-style:none; padding:0; margin: 0 0 15px 0;
-  }
-  li {
-    margin-bottom:10px;
-    display:flex; justify-content: space-between; align-items:center;
-    background: #555a8d;
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-weight: 700;
-  }
-  li button {
-    background: #ffd700;
-    color: #4a2c00;
-    font-weight: 700;
-    border-radius: 12px;
-    padding: 6px 15px;
-    box-shadow: 0 3px 8px rgba(255,215,0,0.7);
-  }
-  li button:hover {
-    background: #ffec00;
-  }
-  li.purchased {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Цилиндр с числами — Минималка</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    body, html {
+      margin:0; padding:0; height:100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-family: 'Montserrat', sans-serif;
+      color:#fff;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      user-select:none;
+    }
+    #score { font-size:2rem; margin-bottom:20px; text-shadow:0 0 10px rgba(0,0,0,.5);}
+    .cylinder-container {
+      perspective:1200px; width:200px; height:200px; position:relative;
+    }
+    #cylinder {
+      width:150px; height:150px; position:absolute; top:25px; left:25px;
+      transform-style: preserve-3d;
+      animation:spin 8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotateX(360deg) rotateY(360deg); }
+    }
+    .face {
+      position:absolute; width:100px; height:40px; left:25px; top:55px;
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      border-radius:20px;
+      box-shadow: inset 0 0 10px #fff8cc, 0 6px 15px rgba(253,160,133,.7);
+      display:flex; justify-content:center; align-items:center;
+      font-weight:700; font-size:1.5rem; color:#4a2c00;
+      cursor:pointer; user-select:none;
+      transition:background-color .3s ease, transform .3s ease;
+    }
+    .face:hover { background: linear-gradient(135deg,#fbd786,#f7797d); transform: scale(1.1);}
+    .active {
+      background:#ffce00; color:#3a2600; transform: scale(1.3);
+      box-shadow: 0 0 15px #ffce00;
+    }
+    .btns {
+      margin-top: 230px;
+      display:flex; gap:15px;
+    }
+    button {
+      background:linear-gradient(135deg,#ff7e5f,#feb47b);
+      border:none; border-radius:25px; padding:12px 30px;
+      font-weight:700; font-size:1rem; color:#3a2600;
+      cursor:pointer; box-shadow:0 5px 15px rgba(255,126,95,.6);
+      user-select:none;
+      transition: background .3s ease, transform .2s ease;
+    }
+    button:hover { background:linear-gradient(135deg,#feb47b,#ff7e5f); transform:scale(1.05);}
+    .overlay {
+      position: fixed; bottom:0; left:0; right:0;
+      background:#22294ddd; color:#fff; max-height:40vh;
+      padding:20px; box-shadow:0 -5px 20px rgba(0,0,0,.7);
+      display:flex; justify-content:center; align-items:center;
+      z-index:10;
+      transform: translateY(100%);
+      transition: transform .3s ease;
+    }
+    .overlay.visible { transform: translateY(0); }
+    .overlay-content {
+      width:100%; max-width:500px;
+      background:#3a3f6b; border-radius:15px;
+      padding:20px; box-shadow: 0 0 15px #000a;
+      text-align:center;
+    }
+    .close-btn {
+      margin-top:15px;
+      background:#ff5555; color:#fff; box-shadow:none;
+    }
+    .close-btn:hover {
+      background:#ff2222;
+    }
+    ul {
+      list-style:none; padding:0; margin: 0 0 15px 0;
+    }
+    li {
+      margin-bottom:10px;
+      display:flex; justify-content: space-between; align-items:center;
+      background: #555a8d;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    li button {
+      background: #ffd700;
+      color: #4a2c00;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 6px 15px;
+      box-shadow: 0 3px 8px rgba(255,215,0,0.7);
+    }
+    li button:hover {
+      background: #ffec00;
+    }
+    li.purchased {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
 
-<div id="score">Очки: 0</div>
+  <div id="score">Очки: 0</div>
 
-<div class="cylinder-container">
-  <div id="cylinder"></div>
-</div>
-
-<div class="btns">
-  <button id="shop-btn">Магазин</button>
-  <button id="tasks-btn">Задания</button>
-</div>
-
-<!-- Магазин -->
-<div id="shop-overlay" class="overlay">
-  <div class="overlay-content">
-    <h2>Магазин</h2>
-    <ul id="shop-list">
-      <!-- Тут будут товары -->
-    </ul>
-    <button id="close-shop" class="close-btn">Закрыть</button>
+  <div class="cylinder-container">
+    <div id="cylinder"></div>
   </div>
-</div>
 
-<!-- Задания -->
-<div id="tasks-overlay" class="overlay">
-  <div class="overlay-content">
-    <h2>Задания</h2>
-    <p>Пока пусто</p>
-    <button id="close-tasks" class="close-btn">Закрыть</button>
+  <!-- ✅ Кнопки -->
+  <div class="btns">
+    <button id="shop-btn">Магазин</button>
+    <button id="tasks-btn">Задания</button>
+    <button id="invite-btn">Пригласить</button> <!-- ← добавлена -->
   </div>
-</div>
+
+  <!-- Магазин -->
+  <div id="shop-overlay" class="overlay">
+    <div class="overlay-content">
+      <h2>Магазин</h2>
+      <ul id="shop-list"></ul>
+      <button id="close-shop" class="close-btn">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Задания -->
+  <div id="tasks-overlay" class="overlay">
+    <div class="overlay-content">
+      <h2>Задания</h2>
+      <p>Пока пусто</p>
+      <button id="close-tasks" class="close-btn">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- ✅ Пригласить -->
+  <div id="invite-overlay" class="overlay">
+    <div class="overlay-content">
+      <h2>Приглашай друзей</h2>
+      <div id="referral-container">
+        <!-- Сюда JS вставит реферальную ссылку -->
+      </div>
+      <button id="close-invite" class="close-btn">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Подключи сюда свой JS <script> ниже или через файл -->
+  <script src="main.js"></script> <!-- или вставь напрямую внутрь -->
+</body>
+</html>
 
 <script>
 (() => {
