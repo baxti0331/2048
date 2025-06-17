@@ -15,7 +15,8 @@ h1 {
 #game-container {
   position: relative;
   margin: 0 auto;
-  width: 340px; height: 340px;
+  width: 340px;
+  height: 340px;
   background: #bbada0;
   border-radius: 10px;
   padding: 10px;
@@ -26,26 +27,32 @@ h1 {
   grid-template: repeat(4, 1fr) / repeat(4, 1fr);
   gap: 10px;
   position: absolute;
-  top: 10px; left: 10px;
-  width: 320px; height: 320px;
+  top: 10px;
+  left: 10px;
+  width: 320px;
+  height: 320px;
 }
 
 .cell {
-  width: 80px; height: 80px;
+  width: 80px;
+  height: 80px;
   background: #cdc1b4;
   border-radius: 6px;
 }
 
 #tiles {
-  position:absolute;
-  top:10px; left:10px;
-  width:320px; height:320px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 320px;
+  height: 320px;
   pointer-events: none;
 }
 
 .tile {
   position: absolute;
-  width: 80px; height: 80px;
+  width: 80px;
+  height: 80px;
   border-radius: 6px;
   font-size: 48px;
   line-height: 80px;
@@ -54,28 +61,36 @@ h1 {
   color: #776e65;
   transition: transform 0.2s ease, background 0.2s ease;
 }
-.tile-2 { background: #eee4da; }
-.tile-4 { background: #ede0c8; }
-.tile-8 { background: #f2b179; color: #f9f6f2; }
-.tile-16 { background: #f59563; color: #f9f6f2; }
-.tile-32 { background: #f67c5f; color: #f9f6f2; }
-.tile-64 { background: #f65e3b; color: #f9f6f2; }
-.tile-128 { background: #edcf72; font-size:36px; color:#f9f6f2; }
-.tile-256 { background: #edcc61; font-size:36px; color:#f9f6f2; }
-.tile-512 { background: #edc850; font-size:36px; color:#f9f6f2; }
-.tile-1024 { background: #edc53f; font-size:24px; color:#f9f6f2; }
-.tile-2048 { background: #edc22e; font-size:24px; color:#f9f6f2; }
+
+.tile-2    { background: #eee4da; }
+.tile-4    { background: #ede0c8; }
+.tile-8    { background: #f2b179; color: #f9f6f2; }
+.tile-16   { background: #f59563; color: #f9f6f2; }
+.tile-32   { background: #f67c5f; color: #f9f6f2; }
+.tile-64   { background: #f65e3b; color: #f9f6f2; }
+.tile-128  { background: #edcf72; font-size: 36px; color: #f9f6f2; }
+.tile-256  { background: #edcc61; font-size: 36px; color: #f9f6f2; }
+.tile-512  { background: #edc850; font-size: 36px; color: #f9f6f2; }
+.tile-1024 { background: #edc53f; font-size: 24px; color: #f9f6f2; }
+.tile-2048 { background: #edc22e; font-size: 24px; color: #f9f6f2; }
 
 #score-container {
-  margin: 15px; font-size: 24px; color: #776e65;
+  margin: 15px;
+  font-size: 24px;
+  color: #776e65;
 }
+
 #restart-btn {
-  padding: 10px 20px; font-size: 18px;
-  background: #8f7a66; border: none;
-  color: white; border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background: #8f7a66;
+  border: none;
+  color: white;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background .3s;
+  transition: background 0.3s;
 }
+
 #restart-btn:hover {
   background: #9e8b7d;
 }
