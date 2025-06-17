@@ -142,6 +142,12 @@
 (() => {
   const cylinder = document.getElementById('cylinder');
   const scoreDisplay = document.getElementById('score');
+  const cpsDisplay = document.createElement('div');
+  cpsDisplay.style.fontSize = '1.2rem';
+  cpsDisplay.style.marginBottom = '15px';
+  cpsDisplay.style.textShadow = '0 0 5px rgba(0,0,0,.5)';
+  scoreDisplay.insertAdjacentElement('afterend', cpsDisplay);
+
   const shopBtn = document.getElementById('shop-btn');
   const tasksBtn = document.getElementById('tasks-btn');
   const shopOverlay = document.getElementById('shop-overlay');
@@ -159,14 +165,37 @@
   let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
   let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
 
+  // Функция для получения уровня автокликера и ускорителя
+  function getAutoClickerLevel() {
+    return parseInt(localStorage.getItem('autoClickerLevel')) || 0;
+  }
+  function getDoublePointsLevel() {
+    return parseInt(localStorage.getItem('doublePointsLevel')) || 0;
+  }
+
+  // Расчет CPS (очки в секунду)
+  function calculateCPS() {
+    const level = getAutoClickerLevel();
+    if(level === 0) return 0;
+
+    const interval = Math.max(500, 1500 - level * 100); // мс между кликами
+    const clicksPerSecond = 1000 / interval;
+
+    // Среднее число очков за клик: берем среднее значение массива чисел
+    const averageNum = numbers.reduce((a,b) => a + b, 0) / numbers.length;
+    const multiplier = getDoublePointsLevel() + 1;
+
+    return (averageNum * multiplier * clicksPerSecond).toFixed(1);
+  }
+
   // Обработка оффлайн-наград
   function handleOfflineProgress() {
     const lastVisit = parseInt(localStorage.getItem('lastVisit')) || Date.now();
     const now = Date.now();
     const diffSeconds = Math.floor((now - lastVisit) / 1000);
 
-    const autoClickerLevel = parseInt(localStorage.getItem('autoClickerLevel')) || 0;
-    const doublePointsLevel = parseInt(localStorage.getItem('doublePointsLevel')) || 0;
+    const autoClickerLevel = getAutoClickerLevel();
+    const doublePointsLevel = getDoublePointsLevel();
 
     if (autoClickerActive && autoClickerLevel > 0 && diffSeconds > 0) {
       const interval = Math.max(500, 1500 - autoClickerLevel * 100);
@@ -198,7 +227,7 @@
       f.classList.add('active');
       activeFace = f;
 
-      const multiplier = (parseInt(localStorage.getItem('doublePointsLevel')) || 0) + 1;
+      const multiplier = getDoublePointsLevel() + 1;
       const pointsToAdd = num * multiplier;
       score += pointsToAdd;
       updateScoreDisplay();
@@ -213,25 +242,28 @@
       id: 'autoClicker',
       name: 'Автокликер',
       basePrice: 10,
-      level: parseInt(localStorage.getItem('autoClickerLevel')) || 0
+      level: getAutoClickerLevel()
     },
     {
       id: 'doublePoints',
       name: 'Ускоритель x2+',
       basePrice: 50,
-      level: parseInt(localStorage.getItem('doublePointsLevel')) || 0
+      level: getDoublePointsLevel()
     }
   ];
 
-  // Обновление очков
+  // Обновление очков и CPS
   function updateScoreDisplay() {
     scoreDisplay.textContent = `Очки: ${score}`;
+    cpsDisplay.textContent = `Очки в секунду: ${calculateCPS()}`;
   }
 
   // Рендер магазина
   function renderShop() {
     shopList.innerHTML = '';
     shopItems.forEach(item => {
+      // Обновляем уровень из localStorage
+      item.level = item.id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
       const price = Math.floor(item.basePrice * Math.pow(1.8, item.level));
       const li = document.createElement('li');
       li.textContent = `${item.name} (Ур. ${item.level}) — ${price} очков`;
@@ -250,38 +282,39 @@
     const item = shopItems.find(i => i.id === id);
     if (!item) return;
 
-    const price = Math.floor(item.basePrice * Math.pow(1.8, item.level));
+    const currentLevel = item.id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
+    const price = Math.floor(item.basePrice * Math.pow(1.8, currentLevel));
     if (score < price) {
       alert('Недостаточно очков!');
       return;
     }
 
     score -= price;
-    item.level++;
-    localStorage.setItem('score', score);
-    localStorage.setItem(`${id}Level`, item.level);
-    updateScoreDisplay();
-
     if (id === 'autoClicker') {
+      const newLevel = currentLevel + 1;
+      localStorage.setItem('autoClickerLevel', newLevel);
       autoClickerActive = true;
       localStorage.setItem('autoClickerActive', 'true');
       restartAutoClicker();
-    }
-
-    if (id === 'doublePoints') {
+      alert(`${item.name} улучшен до уровня ${newLevel}`);
+    } else if (id === 'doublePoints') {
+      const newLevel = currentLevel + 1;
+      localStorage.setItem('doublePointsLevel', newLevel);
       doublePointsActive = true;
       localStorage.setItem('doublePointsActive', 'true');
+      alert(`${item.name} улучшен до уровня ${newLevel}`);
     }
 
+    localStorage.setItem('score', score);
+    updateScoreDisplay();
     renderShop();
-    alert(`${item.name} улучшен до уровня ${item.level}`);
   }
 
   // Автокликер
   let autoClickerInterval = null;
 
   function getAutoClickerInterval() {
-    const level = parseInt(localStorage.getItem('autoClickerLevel')) || 0;
+    const level = getAutoClickerLevel();
     return Math.max(500, 1500 - level * 100);
   }
 
@@ -296,7 +329,7 @@
     const intervalTime = getAutoClickerInterval();
     autoClickerInterval = setInterval(() => {
       const randomNum = numbers[Math.floor(Math.random() * numbers.length)];
-      const multiplier = (parseInt(localStorage.getItem('doublePointsLevel')) || 0) + 1;
+      const multiplier = getDoublePointsLevel() + 1;
       const pointsToAdd = randomNum * multiplier;
       score += pointsToAdd;
       localStorage.setItem('score', score);
@@ -327,7 +360,7 @@
   closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
   closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
 
-  // Вызов оффлайн-проверки
+  // Оффлайн-награды
   handleOfflineProgress();
   updateScoreDisplay();
 
