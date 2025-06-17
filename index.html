@@ -3,111 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Дневник питания с советами</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
-
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px 20px;
-      color: #333;
-    }
-    .container {
-      background: rgba(255 255 255 / 0.9);
-      border-radius: 12px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-      max-width: 480px;
-      width: 100%;
-      padding: 30px 40px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-weight: 600;
-      color: #ff6f91;
-    }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #555;
-    }
-    select, input[type="number"] {
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 20px;
-      border: 2px solid #ff6f91;
-      border-radius: 8px;
-      font-size: 16px;
-      transition: border-color 0.3s ease;
-    }
-    select:focus, input[type="number"]:focus {
-      border-color: #ff4382;
-      outline: none;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 18px;
-      background: #ff6f91;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #ff4382;
-    }
-    .log {
-      margin-top: 30px;
-      max-height: 250px;
-      overflow-y: auto;
-      border-top: 2px solid #ff6f91;
-      padding-top: 20px;
-    }
-    .entry {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-      font-weight: 500;
-    }
-    .total {
-      margin-top: 25px;
-      font-size: 22px;
-      font-weight: 700;
-      text-align: center;
-      color: #ff4382;
-    }
-    .advice {
-      margin-top: 15px;
-      background: #fff0f5;
-      padding: 15px 20px;
-      border-radius: 10px;
-      border: 1.5px solid #ff6f91;
-      color: #b3003b;
-      font-weight: 600;
-      font-size: 16px;
-      min-height: 60px;
-    }
-    .footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 12px;
-      color: #999;
-    }
-  </style>
+  <title>Дневник питания с советами и слайдером</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="container">
@@ -134,103 +31,21 @@
     <div class="total" id="totalCalories">Всего калорий: 0</div>
     <div class="advice" id="advice">Добавляйте приемы пищи, чтобы получить советы</div>
 
+    <div class="slider" aria-label="Советы по питанию">
+      <div class="slide active">Пейте достаточно воды — это важно для здоровья.</div>
+      <div class="slide">Регулярное питание помогает поддерживать энергию в течение дня.</div>
+      <div class="slide">Добавляйте овощи и фрукты для витаминов и клетчатки.</div>
+      <div class="slide">Контролируйте порции, чтобы избежать переедания.</div>
+      <div class="slide">Белок важен для восстановления и роста мышц.</div>
+    </div>
+    <div class="slider-controls">
+      <button id="prevBtn" aria-label="Предыдущий совет">←</button>
+      <button id="nextBtn" aria-label="Следующий совет">→</button>
+    </div>
+
     <div class="footer">Данные сохраняются в браузере</div>
   </div>
 
-  <script>
-    const productSelect = document.getElementById('product');
-    const gramsInput = document.getElementById('grams');
-    const addBtn = document.getElementById('addBtn');
-    const logDiv = document.getElementById('log');
-    const totalCaloriesDiv = document.getElementById('totalCalories');
-    const adviceDiv = document.getElementById('advice');
-
-    let entries = JSON.parse(localStorage.getItem('foodEntries')) || [];
-
-    function analyzeDiet(entries) {
-      let totalCalories = 0;
-      let categoriesCount = {
-        фрукты: 0,
-        овощи: 0,
-        мясо: 0,
-        углеводы: 0,
-        молочные: 0,
-      };
-      entries.forEach(entry => {
-        totalCalories += entry.calories;
-        if (categoriesCount.hasOwnProperty(entry.category)) {
-          categoriesCount[entry.category] += entry.grams;
-        }
-      });
-
-      const adviceList = [];
-
-      if (totalCalories < 1500) adviceList.push('Калорий слишком мало, постарайтесь есть больше.');
-      else if (totalCalories > 2800) adviceList.push('Калорий много — контролируйте порции.');
-
-      if (categoriesCount.овощи < 100) adviceList.push('Добавьте больше овощей для витаминов и клетчатки.');
-      if (categoriesCount.фрукты < 100) adviceList.push('Фрукты важны, не забывайте их.');
-
-      if (categoriesCount.мясо < 50 && categoriesCount.молочные < 100)
-        adviceList.push('Добавьте белка из мяса или молочных продуктов.');
-
-      if (adviceList.length === 0) adviceList.push('Ваш рацион выглядит сбалансированным. Молодец!');
-
-      return adviceList.join(' ');
-    }
-
-    function renderEntries() {
-      logDiv.innerHTML = '';
-      let totalCalories = 0;
-      entries.forEach((entry, i) => {
-        const el = document.createElement('div');
-        el.className = 'entry';
-        el.innerHTML = `
-          <div>${entry.product} — ${entry.grams} г</div>
-          <div>${entry.calories} ккал</div>
-        `;
-        logDiv.appendChild(el);
-        totalCalories += entry.calories;
-      });
-      totalCaloriesDiv.textContent = `Всего калорий: ${totalCalories}`;
-
-      // Показываем советы
-      adviceDiv.textContent = analyzeDiet(entries);
-    }
-
-    function saveEntries() {
-      localStorage.setItem('foodEntries', JSON.stringify(entries));
-    }
-
-    addBtn.onclick = () => {
-      const productIndex = productSelect.selectedIndex;
-      if (productIndex < 1) {
-        alert('Пожалуйста, выберите продукт');
-        return;
-      }
-      const productOption = productSelect.options[productIndex];
-      const productName = productOption.value;
-      const caloriesPer100 = +productOption.dataset.calories;
-      const category = productOption.dataset.category;
-      const grams = +gramsInput.value;
-
-      if (!grams || grams <= 0) {
-        alert('Введите корректное количество грамм');
-        return;
-      }
-
-      const calories = Math.round((caloriesPer100 * grams) / 100);
-
-      entries.push({ product: productName, grams, calories, category });
-      saveEntries();
-      renderEntries();
-
-      // Очистить форму
-      productSelect.selectedIndex = 0;
-      gramsInput.value = '';
-    };
-
-    renderEntries();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
