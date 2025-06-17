@@ -157,7 +157,64 @@
   const shopList = document.getElementById('shop-list');
 
   let score = parseInt(localStorage.getItem('score')) || 0;
-  let activeFace = null;
+
+  // --- Реферальная система ---
+  const REFERRAL_BONUS = 2000000;
+
+  function getReferralFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('ref');
+  }
+
+  function applyReferralBonus(ref) {
+    const usedRef = localStorage.getItem('usedReferral');
+    if (usedRef) return; // бонус уже был применён
+
+    if (ref && ref !== localStorage.getItem('userId')) {
+      score += REFERRAL_BONUS;
+      localStorage.setItem('usedReferral', ref);
+      localStorage.setItem('score', score);
+      alert(`Ты получил бонус ${REFERRAL_BONUS.toLocaleString()} очков за приглашение друга!`);
+    }
+  }
+
+  function getUserId() {
+    let id = localStorage.getItem('userId');
+    if (!id) {
+      id = 'user-' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('userId', id);
+    }
+    return id;
+  }
+
+  const userId = getUserId();
+  const referralFromURL = getReferralFromURL();
+  applyReferralBonus(referralFromURL);
+
+  const referralDiv = document.createElement('div');
+  referralDiv.style.margin = '10px 0';
+  referralDiv.style.fontSize = '1rem';
+  referralDiv.style.color = '#333';
+
+  const referralLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
+  referralDiv.innerHTML = `
+    <div>Твоя реферальная ссылка: <input type="text" value="${referralLink}" readonly style="width:250px; padding: 2px 5px; font-size: 0.9rem;"/>
+    <button id="copyReferralBtn">Скопировать</button></div>
+  `;
+
+  scoreDisplay.insertAdjacentElement('beforebegin', referralDiv);
+
+  document.getElementById('copyReferralBtn').onclick = () => {
+    const input = referralDiv.querySelector('input');
+    input.select();
+    input.setSelectionRange(0, 99999); // для мобил
+    document.execCommand('copy');
+    alert('Реферальная ссылка скопирована!');
+  };
+
+  // ----------------------------------------
+  // Остальной код ниже
+
   const numbers = [1,2,3,4,5,6,7,8];
   const radius = 80;
   const angleStep = 360 / numbers.length;
@@ -165,7 +222,6 @@
   let autoClickerActive = localStorage.getItem('autoClickerActive') === 'true';
   let doublePointsActive = localStorage.getItem('doublePointsActive') === 'true';
 
-  // Функция для получения уровня автокликера и ускорителя
   function getAutoClickerLevel() {
     return parseInt(localStorage.getItem('autoClickerLevel')) || 0;
   }
@@ -173,22 +229,19 @@
     return parseInt(localStorage.getItem('doublePointsLevel')) || 0;
   }
 
-  // Расчет CPS (очки в секунду)
   function calculateCPS() {
     const level = getAutoClickerLevel();
     if(level === 0) return 0;
 
-    const interval = Math.max(500, 1500 - level * 100); // мс между кликами
+    const interval = Math.max(500, 1500 - level * 100);
     const clicksPerSecond = 1000 / interval;
 
-    // Среднее число очков за клик: берем среднее значение массива чисел
     const averageNum = numbers.reduce((a,b) => a + b, 0) / numbers.length;
     const multiplier = getDoublePointsLevel() + 1;
 
     return (averageNum * multiplier * clicksPerSecond).toFixed(1);
   }
 
-  // Обработка оффлайн-наград
   function handleOfflineProgress() {
     const lastVisit = parseInt(localStorage.getItem('lastVisit')) || Date.now();
     const now = Date.now();
@@ -216,7 +269,6 @@
     localStorage.setItem('lastVisit', now);
   }
 
-  // Создание лиц цилиндра
   numbers.forEach((num, i) => {
     const f = document.createElement('div');
     f.className = 'face';
@@ -236,7 +288,6 @@
     cylinder.appendChild(f);
   });
 
-  // Список предметов
   const shopItems = [
     {
       id: 'autoClicker',
@@ -252,17 +303,14 @@
     }
   ];
 
-  // Обновление очков и CPS
   function updateScoreDisplay() {
     scoreDisplay.textContent = `Очки: ${score}`;
     cpsDisplay.textContent = `Очки в секунду: ${calculateCPS()}`;
   }
 
-  // Рендер магазина
   function renderShop() {
     shopList.innerHTML = '';
     shopItems.forEach(item => {
-      // Обновляем уровень из localStorage
       item.level = item.id === 'autoClicker' ? getAutoClickerLevel() : getDoublePointsLevel();
       const price = Math.floor(item.basePrice * Math.pow(1.8, item.level));
       const li = document.createElement('li');
@@ -277,7 +325,6 @@
     });
   }
 
-  // Покупка предмета
   function buyItem(id) {
     const item = shopItems.find(i => i.id === id);
     if (!item) return;
@@ -310,7 +357,6 @@
     renderShop();
   }
 
-  // Автокликер
   let autoClickerInterval = null;
 
   function getAutoClickerInterval() {
@@ -341,7 +387,6 @@
     startAutoClicker();
   }
 
-  // Переключение оверлеев
   function toggleOverlay(overlay, show) {
     overlay.classList.toggle('visible', show);
   }
@@ -360,13 +405,12 @@
   closeShopBtn.onclick = () => toggleOverlay(shopOverlay, false);
   closeTasksBtn.onclick = () => toggleOverlay(tasksOverlay, false);
 
-  // Оффлайн-награды
   handleOfflineProgress();
   updateScoreDisplay();
 
-  // Сохраняем дату выхода при закрытии страницы
   window.addEventListener('beforeunload', () => {
     localStorage.setItem('lastVisit', Date.now());
   });
+
 })();
 </script>
