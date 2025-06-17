@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-<title>Вращающийся 3D цилиндр с цифрами и магазин</title>
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вращающийся 3D цилиндр с цифрами</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
@@ -14,28 +14,33 @@
     <div class="cylinder" id="cylinder"></div>
   </div>
 
-  <div class="info-row" id="auto-click-info">Автокликер: выкл.</div>
-  <div class="info-row" id="click-multiplier-info">Множитель клика: x1</div>
-
-  <div class="bottom-bar">
-    <button id="shop-btn">Магазин 🛒</button>
-    <button id="tasks-btn">Задания 📋</button>
+  <div class="buttons-container">
+    <button id="shop-btn" class="btn">Магазин</button>
+    <button id="tasks-btn" class="btn">Задания</button>
   </div>
 
-  <!-- Магазин -->
-  <div class="overlay" id="shop-overlay">
-    <h2>Магазин</h2>
-    <div id="shop-list"></div>
-    <button id="close-shop-btn" style="align-self: center; margin-top: 10px; background:#764ba2; color:#fff;">Закрыть</button>
+  <!-- Оверлей Магазина -->
+  <div id="shop-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <h2>Магазин</h2>
+      <ul id="shop-list">
+        <li>Автокликер - стоит 10 очков</li>
+        <li>Ускоритель клика x2 - стоит 50 очков</li>
+        <!-- Можно добавлять еще -->
+      </ul>
+      <button id="close-shop" class="btn close-btn">Закрыть</button>
+    </div>
   </div>
 
-  <!-- Задания -->
-  <div class="overlay" id="tasks-overlay">
-    <h2>Задания</h2>
-    <p>Пока пусто...</p>
-    <button id="close-tasks-btn" style="align-self: center; margin-top: 10px; background:#764ba2; color:#fff;">Закрыть</button>
+  <!-- Оверлей Заданий -->
+  <div id="tasks-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <h2>Задания</h2>
+      <p>Пока пусто</p>
+      <button id="close-tasks" class="btn close-btn">Закрыть</button>
+    </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
