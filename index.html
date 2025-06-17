@@ -157,7 +157,7 @@
   #modal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.95);
     display: none;
     justify-content: center;
     align-items: center;
@@ -169,10 +169,12 @@
   }
 
   #modal img {
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 95vw;
+    max-height: 95vh;
     border-radius: 20px;
     box-shadow: 0 0 40px rgba(255,255,255,0.3);
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   #modal-close {
@@ -182,7 +184,7 @@
     background: #ff7e5f;
     border: none;
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -236,6 +238,8 @@
   const modalImg = document.getElementById('modal-img');
   const modalClose = document.getElementById('modal-close');
 
+  let currentDataURL = '';
+
   textInput.addEventListener('input', () => {
     const hasText = textInput.value.trim().length > 0;
     generateBtn.disabled = !hasText;
@@ -275,43 +279,43 @@
 
     statusMsg.textContent = 'Генерируем QR-код...';
     generateBtn.disabled = true;
+    downloadBtn.style.display = 'none';
     qrCodeContainer.classList.remove('visible');
     qrCodeContainer.innerHTML = '';
-    downloadBtn.style.display = 'none';
 
     await simulateProgress();
 
-    QRCode.toCanvas(text, { errorCorrectionLevel: 'H', width: 256 }, function (err, canvas) {
+    // Генерируем DataURL (изображение)
+    QRCode.toDataURL(text, { errorCorrectionLevel: 'H', width: 256 }, function (err, url) {
       generateBtn.disabled = false;
 
       if (err) {
         statusMsg.textContent = 'Ошибка при генерации QR-кода.';
-        return console.error(err);
+        console.error(err);
+        return;
       }
 
-      qrCodeContainer.appendChild(canvas);
+      currentDataURL = url;
+
+      // Показываем превью QR-кода в контейнере как <img>
+      qrCodeContainer.innerHTML = `<img src="${url}" alt="QR-код" style="max-width: 100%; border-radius: 18px;" />`;
       qrCodeContainer.classList.add('visible');
       statusMsg.textContent = 'QR-код готов!';
-
-      // Показываем кнопку "Скачать"
       downloadBtn.style.display = 'inline-flex';
-
-      // Сохраняем dataURL для модалки
-      downloadBtn.dataset.imgUrl = canvas.toDataURL('image/png');
     });
   });
 
+  // При нажатии на кнопку "Скачать" показываем модал с изображением на весь экран
   downloadBtn.addEventListener('click', () => {
-    // Показываем модальное окно с изображением
-    modalImg.src = downloadBtn.dataset.imgUrl;
+    if (!currentDataURL) return;
+    modalImg.src = currentDataURL;
     modal.classList.add('visible');
   });
 
+  // Закрываем модальное окно по кнопке закрытия или клику вне картинки
   modalClose.addEventListener('click', () => {
     modal.classList.remove('visible');
   });
-
-  // Закрыть модал по клику вне картинки
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       modal.classList.remove('visible');
