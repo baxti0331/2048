@@ -1,288 +1,84 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Генератор QR и Штрихкодов</title>
-<style>
-  body {
-    font-family: 'Inter', sans-serif;
-    margin: 0; padding: 30px 20px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-  }
-  .container {
-    background: rgba(255 255 255 / 0.1);
-    backdrop-filter: blur(20px);
-    border-radius: 18px;
-    padding: 30px 40px;
-    max-width: 480px;
-    width: 100%;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  }
-  h1 {
-    margin: 0 0 24px;
-    font-weight: 700;
-    font-size: 2.2rem;
-    text-align: center;
-  }
-  .tabs {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 24px;
-    gap: 24px;
-  }
-  .tab {
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 1.1rem;
-    padding-bottom: 8px;
-    border-bottom: 3px solid transparent;
-    color: #ddd;
-    user-select: none;
-  }
-  .tab.active {
-    color: #fff;
-    border-color: #feb47b;
-  }
-  label {
-    font-weight: 600;
-    color: #ddd;
-    margin-bottom: 6px;
-    display: block;
-  }
-  textarea, input[type=text] {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: 14px;
-    border: none;
-    font-size: 1.1rem;
-    background: rgba(255 255 255 / 0.15);
-    color: #fff;
-    outline: none;
-  }
-  textarea::placeholder, input::placeholder {
-    color: #eee;
-    opacity: 0.7;
-  }
-  textarea:focus, input:focus {
-    background: rgba(255 255 255 / 0.25);
-  }
-  .buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  button {
-    background: linear-gradient(135deg, #ff7e5f, #feb47b);
-    border: none;
-    border-radius: 36px;
-    padding: 14px 36px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  button:hover:not(:disabled) {
-    background: linear-gradient(135deg, #feb47b, #ff7e5f);
-  }
-  button:disabled {
-    background: #ccc;
-    color: #666;
-    cursor: not-allowed;
-  }
-  #qrcode, #barcode-container {
-    margin-top: 24px;
-    background: #fff;
-    border-radius: 18px;
-    padding: 24px;
-    display: inline-block;
-    max-width: 100%;
-    opacity: 0;
-    transform: scale(0.9);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-  }
-  #qrcode.visible, #barcode-container.visible {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .status {
-    font-size: 0.9rem;
-    color: #ffd9c4;
-    min-height: 22px;
-    text-align: center;
-    font-weight: 600;
-    margin-top: 6px;
-  }
-  /* Модальное окно */
-  #modal {
-    display:none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  #modal img {
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 20px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.3);
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Магазин телефонов (Vue)</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5faff;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+
+    input, button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    h1 {
+      color: #3498db;
+    }
+
+    ul {
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      border-bottom: 1px solid #eee;
+      padding: 0.5rem 0;
+    }
+  </style>
 </head>
 <body>
+  <div id="app" class="app">
+    <h1>Склад телефонов</h1>
+    <input v-model="name" placeholder="Модель телефона">
+    <input v-model="price" placeholder="Цена" type="number">
+    <button @click="addPhone">Добавить</button>
 
-<div class="container">
-  <h1>Генератор QR и Штрихкодов</h1>
-  <div class="tabs">
-    <div class="tab active" data-tab="qr">QR-код</div>
-    <div class="tab" data-tab="barcode">Штрихкод EAN-13</div>
+    <ul>
+      <li v-for="(phone, index) in phones" :key="index">
+        {{ phone.name }} — {{ phone.price }}₽
+      </li>
+    </ul>
   </div>
 
-  <div id="qr" class="tab-content" style="display:block;">
-    <label for="qr-input">Введите текст или ссылку:</label>
-    <textarea id="qr-input" rows="4" placeholder="Например, https://example.com"></textarea>
-    <div class="status" id="qr-status"></div>
-    <div class="buttons">
-      <button id="qr-generate-btn" disabled>Сгенерировать QR-код</button>
-      <button id="qr-open-btn" style="display:none;" title="Открыть QR-код на полный экран">Открыть</button>
-    </div>
-    <div id="qrcode"></div>
-  </div>
+  <script>
+    const { createApp } = Vue;
 
-  <div id="barcode" class="tab-content" style="display:none;">
-    <label for="barcode-input">Введите 12 цифр (EAN-13, 13-я рассчитывается автоматически):</label>
-    <input type="text" id="barcode-input" maxlength="12" placeholder="Например, 460123456789" pattern="\d*" inputmode="numeric"/>
-    <div class="status" id="barcode-status"></div>
-    <div class="buttons">
-      <button id="barcode-generate-btn" disabled>Сгенерировать штрихкод</button>
-      <button id="barcode-open-btn" style="display:none;" title="Открыть штрихкод на полный экран">Открыть</button>
-    </div>
-    <div id="barcode-container"></div>
-  </div>
-</div>
-
-<div id="modal">
-  <img alt="Изображение кода" />
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode/dist/JsBarcode.all.min.js"></script>
-<script>
-  const tabs = document.querySelectorAll('.tab');
-  const tabContents = document.querySelectorAll('.tab-content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      tabContents.forEach(tc => tc.style.display = tc.id === tab.dataset.tab ? 'block' : 'none');
-    });
-  });
-
-  // QR elements
-  const qrInput = document.getElementById('qr-input');
-  const qrGenerateBtn = document.getElementById('qr-generate-btn');
-  const qrStatus = document.getElementById('qr-status');
-  const qrCodeContainer = document.getElementById('qrcode');
-  const qrOpenBtn = document.getElementById('qr-open-btn');
-
-  qrInput.addEventListener('input', () => {
-    qrGenerateBtn.disabled = qrInput.value.trim() === '';
-    qrStatus.textContent = '';
-  });
-
-  qrGenerateBtn.addEventListener('click', () => {
-    qrStatus.textContent = '';
-    qrCodeContainer.innerHTML = '';
-    QRCode.toCanvas(qrInput.value.trim(), { width: 256 }, (err, canvas) => {
-      if (err) {
-        qrStatus.textContent = 'Ошибка генерации QR-кода';
-        return;
+    createApp({
+      data() {
+        return {
+          name: '',
+          price: '',
+          phones: JSON.parse(localStorage.getItem('phones')) || []
+        };
+      },
+      methods: {
+        addPhone() {
+          if (!this.name || !this.price) return;
+          this.phones.push({ name: this.name, price: this.price });
+          localStorage.setItem('phones', JSON.stringify(this.phones));
+          this.name = '';
+          this.price = '';
+        }
       }
-      qrCodeContainer.appendChild(canvas);
-      qrCodeContainer.classList.add('visible');
-      qrOpenBtn.style.display = 'inline-flex';
-    });
-  });
-
-  // Barcode elements
-  const barcodeInput = document.getElementById('barcode-input');
-  const barcodeGenerateBtn = document.getElementById('barcode-generate-btn');
-  const barcodeStatus = document.getElementById('barcode-status');
-  const barcodeContainer = document.getElementById('barcode-container');
-  const barcodeOpenBtn = document.getElementById('barcode-open-btn');
-
-  barcodeInput.addEventListener('input', () => {
-    barcodeInput.value = barcodeInput.value.replace(/\D/g, '').slice(0, 12);
-    barcodeGenerateBtn.disabled = barcodeInput.value.length !== 12;
-    barcodeStatus.textContent = '';
-  });
-
-  barcodeGenerateBtn.addEventListener('click', () => {
-    barcodeStatus.textContent = '';
-    barcodeContainer.innerHTML = '';
-    try {
-      const code = barcodeInput.value;
-      const checkDigit = calculateEAN13CheckDigit(code);
-      const fullCode = code + checkDigit;
-      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      JsBarcode(svg, fullCode, { format: "ean13", width: 2, height: 100, displayValue: true });
-      barcodeContainer.appendChild(svg);
-      barcodeContainer.classList.add('visible');
-      barcodeOpenBtn.style.display = 'inline-flex';
-    } catch(e) {
-      barcodeStatus.textContent = 'Ошибка генерации штрихкода';
-    }
-  });
-
-  // Вычисление контрольной цифры EAN-13
-  function calculateEAN13CheckDigit(code) {
-    let sum = 0;
-    for (let i = 0; i < code.length; i++) {
-      let n = parseInt(code[i], 10);
-      sum += (i % 2 === 0) ? n : n * 3;
-    }
-    const mod = sum % 10;
-    return (mod === 0) ? 0 : 10 - mod;
-  }
-
-  // Модальное окно
-  const modal = document.getElementById('modal');
-  const modalImg = modal.querySelector('img');
-
-  function openModal(imgSrc) {
-    modalImg.src = imgSrc;
-    modal.style.display = 'flex';
-  }
-  modal.addEventListener('click', () => {
-    modal.style.display = 'none';
-    modalImg.src = '';
-  });
-
-  qrOpenBtn.addEventListener('click', () => {
-    const canvas = qrCodeContainer.querySelector('canvas');
-    if (!canvas) return;
-    openModal(canvas.toDataURL());
-  });
-
-  barcodeOpenBtn.addEventListener('click', () => {
-    const svg = barcodeContainer.querySelector('svg');
-    if (!svg) return;
-    const serializer = new XMLSerializer();
-    const svgStr = serializer.serializeToString(svg);
-    const encoded = encodeURIComponent(svgStr);
-    const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encoded}`;
-    openModal(svgDataUrl);
-  });
-</script>
+    }).mount('#app');
+  </script>
 </body>
 </html>
