@@ -1,121 +1,93 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Калькулятор (React)</title>
+  <meta charset="UTF-8">
+  <title>Календарь (Vue)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/vue@3"></script>
   <style>
     body {
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-family: sans-serif;
       margin: 0;
-    }
-
-    .calculator {
-      background: white;
+      background: #f3f7fa;
       padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      width: 300px;
+      display: flex;
+      justify-content: center;
     }
 
-    .screen {
-      background: #e9f0ff;
+    .calendar {
+      background: #fff;
+      border-radius: 12px;
       padding: 1rem;
-      border-radius: 8px;
-      text-align: right;
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 400px;
+      width: 100%;
     }
 
-    .buttons {
+    .calendar h2 {
+      text-align: center;
+      color: #0077cc;
+    }
+
+    .grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
     }
 
-    button {
-      padding: 1rem;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 8px;
-      background: #f4f4f4;
+    .day {
+      background: #eaf4ff;
+      padding: 0.75rem;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
       cursor: pointer;
-      transition: background 0.2s ease;
     }
 
-    button:hover {
-      background: #d8e6ff;
-    }
-
-    button.operator {
-      background: #007bff;
+    .today {
+      background: #0077cc;
       color: white;
-    }
-
-    button.operator:hover {
-      background: #0056b3;
-    }
-
-    @media (max-width: 400px) {
-      .calculator {
-        width: 90%;
-      }
     }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="app" class="calendar">
+    <h2>{{ monthName }} {{ currentYear }}</h2>
+    <div class="grid">
+      <div v-for="(d, i) in days" :key="i" :class="['day', isToday(d) ? 'today' : '']">{{ d }}</div>
+    </div>
+  </div>
 
-  <script type="text/babel">
-    function Calculator() {
-      const [expression, setExpression] = React.useState("");
-
-      const append = (value) => setExpression(prev => prev + value);
-      const clear = () => setExpression("");
-      const calculate = () => {
-        try {
-          setExpression(eval(expression).toString());
-        } catch {
-          setExpression("Ошибка");
+  <script>
+    const app = Vue.createApp({
+      data() {
+        const now = new Date();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        return {
+          currentDate: now,
+          currentYear: now.getFullYear(),
+          currentMonth: now.getMonth(),
+          days: Array.from({ length: daysInMonth }, (_, i) => i + 1),
+          monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь']
+        };
+      },
+      computed: {
+        monthName() {
+          return this.monthNames[this.currentMonth];
         }
-      };
+      },
+      methods: {
+        isToday(day) {
+          return (
+            this.currentDate.getDate() === day &&
+            this.currentDate.getMonth() === this.currentMonth &&
+            this.currentDate.getFullYear() === this.currentYear
+          );
+        }
+      }
+    });
 
-      const buttons = [
-        "7","8","9","/",
-        "4","5","6","*",
-        "1","2","3","-",
-        "0",".","=","+"
-      ];
-
-      return (
-        <div className="calculator">
-          <div className="screen">{expression || "0"}</div>
-          <div className="buttons">
-            {buttons.map((btn, i) => (
-              <button
-                key={i}
-                className={["/", "*", "-", "+", "="].includes(btn) ? "operator" : ""}
-                onClick={() => btn === "=" ? calculate() : append(btn)}
-              >
-                {btn}
-              </button>
-            ))}
-            <button onClick={clear} style={{ gridColumn: "span 4", background: "#ff4e4e", color: "white" }}>Очистить</button>
-          </div>
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<Calculator />);
+    app.mount('#app');
   </script>
 </body>
 </html>
