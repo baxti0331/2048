@@ -1,84 +1,99 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>Магазин телефонов (Vue)</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f5faff;
-      margin: 0;
-      padding: 2rem;
-    }
-
-    .app {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
-    }
-
-    input, button {
-      display: block;
-      width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-
-    h1 {
-      color: #3498db;
-    }
-
-    ul {
-      padding: 0;
-      list-style: none;
-    }
-
-    li {
-      border-bottom: 1px solid #eee;
-      padding: 0.5rem 0;
-    }
-  </style>
-</head>
-<body>
-  <div id="app" class="app">
-    <h1>Склад телефонов</h1>
-    <input v-model="name" placeholder="Модель телефона">
-    <input v-model="price" placeholder="Цена" type="number">
-    <button @click="addPhone">Добавить</button>
-
-    <ul>
-      <li v-for="(phone, index) in phones" :key="index">
-        {{ phone.name }} — {{ phone.price }}₽
-      </li>
-    </ul>
-  </div>
-
-  <script>
-    const { createApp } = Vue;
-
-    createApp({
-      data() {
-        return {
-          name: '',
-          price: '',
-          phones: JSON.parse(localStorage.getItem('phones')) || []
-        };
-      },
-      methods: {
-        addPhone() {
-          if (!this.name || !this.price) return;
-          this.phones.push({ name: this.name, price: this.price });
-          localStorage.setItem('phones', JSON.stringify(this.phones));
-          this.name = '';
-          this.price = '';
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Магазин телефонов</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #f0f4f8;
+        margin: 0;
+        padding: 2rem;
+        color: #333;
       }
-    }).mount('#app');
-  </script>
-</body>
+
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      }
+
+      h1 {
+        color: #2a5dba;
+      }
+
+      input, button {
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        font-size: 1rem;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      function App() {
+        const [phones, setPhones] = React.useState(() => {
+          const saved = localStorage.getItem("phones");
+          return saved ? JSON.parse(saved) : [];
+        });
+
+        const [name, setName] = React.useState("");
+        const [price, setPrice] = React.useState("");
+
+        const addPhone = () => {
+          if (!name || !price) return;
+          const updated = [...phones, { name, price }];
+          setPhones(updated);
+          localStorage.setItem("phones", JSON.stringify(updated));
+          setName("");
+          setPrice("");
+        };
+
+        return (
+          <div className="container">
+            <h1>Склад телефонов</h1>
+            <input
+              placeholder="Название модели"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <input
+              type="number"
+              placeholder="Цена"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+            <button onClick={addPhone}>Добавить</button>
+
+            <ul>
+              {phones.map((p, i) => (
+                <li key={i}>{p.name} — {p.price}₽</li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
 </html>
