@@ -1,99 +1,121 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Магазин телефонов</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <style>
-      body {
-        font-family: sans-serif;
-        background: #f0f4f8;
-        margin: 0;
-        padding: 2rem;
-        color: #333;
+<head>
+  <meta charset="UTF-8" />
+  <title>Калькулятор (React)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .calculator {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+
+    .screen {
+      background: #e9f0ff;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: right;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      padding: 1rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #f4f4f4;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #d8e6ff;
+    }
+
+    button.operator {
+      background: #007bff;
+      color: white;
+    }
+
+    button.operator:hover {
+      background: #0056b3;
+    }
+
+    @media (max-width: 400px) {
+      .calculator {
+        width: 90%;
       }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-      .container {
-        max-width: 600px;
-        margin: auto;
-        background: #fff;
-        padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      }
+  <script type="text/babel">
+    function Calculator() {
+      const [expression, setExpression] = React.useState("");
 
-      h1 {
-        color: #2a5dba;
-      }
+      const append = (value) => setExpression(prev => prev + value);
+      const clear = () => setExpression("");
+      const calculate = () => {
+        try {
+          setExpression(eval(expression).toString());
+        } catch {
+          setExpression("Ошибка");
+        }
+      };
 
-      input, button {
-        margin: 0.5rem 0;
-        padding: 0.5rem;
-        font-size: 1rem;
-      }
+      const buttons = [
+        "7","8","9","/",
+        "4","5","6","*",
+        "1","2","3","-",
+        "0",".","=","+"
+      ];
 
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      li {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #ddd;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-      function App() {
-        const [phones, setPhones] = React.useState(() => {
-          const saved = localStorage.getItem("phones");
-          return saved ? JSON.parse(saved) : [];
-        });
-
-        const [name, setName] = React.useState("");
-        const [price, setPrice] = React.useState("");
-
-        const addPhone = () => {
-          if (!name || !price) return;
-          const updated = [...phones, { name, price }];
-          setPhones(updated);
-          localStorage.setItem("phones", JSON.stringify(updated));
-          setName("");
-          setPrice("");
-        };
-
-        return (
-          <div className="container">
-            <h1>Склад телефонов</h1>
-            <input
-              placeholder="Название модели"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Цена"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-            <button onClick={addPhone}>Добавить</button>
-
-            <ul>
-              {phones.map((p, i) => (
-                <li key={i}>{p.name} — {p.price}₽</li>
-              ))}
-            </ul>
+      return (
+        <div className="calculator">
+          <div className="screen">{expression || "0"}</div>
+          <div className="buttons">
+            {buttons.map((btn, i) => (
+              <button
+                key={i}
+                className={["/", "*", "-", "+", "="].includes(btn) ? "operator" : ""}
+                onClick={() => btn === "=" ? calculate() : append(btn)}
+              >
+                {btn}
+              </button>
+            ))}
+            <button onClick={clear} style={{ gridColumn: "span 4", background: "#ff4e4e", color: "white" }}>Очистить</button>
           </div>
-        );
-      }
+        </div>
+      );
+    }
 
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(<App />);
-    </script>
-  </body>
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Calculator />);
+  </script>
+</body>
 </html>
